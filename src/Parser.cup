@@ -1,0 +1,90 @@
+/*
+ * Projet compilation
+ *
+ * auteurs : BURTEAUX CHAUDOIN MATHIEU NEVES PAPELIER POTIER
+ */ 
+package fr.ul.miage.exemple.generated;
+
+import fr.ul.miage.exemple.*;
+
+/* la grammaire */
+
+terminal VAR, NUM, PV, AO, AF, PO, PF, NL, EQ, OP, OPBOOL, VRG, TYPE, RETURN, VOID, COM, IF, ELSE, WHILE;
+
+non terminal prog, blabla, vars, instruction, affect, defVar, defFunc, callFunc, args, defArgs, expression, conditionnelle, condition, iteration;
+
+start with prog;
+
+prog ::= blabla:p {:  :} ;
+
+blabla ::= instruction blabla
+	| COM blabla
+	| instruction | COM
+	;
+
+instruction ::= defVar
+	| defFunc:df {:  :}
+	| callFunc:cf PV
+	| affect:aff
+	| conditionnelle:nif
+	| iteration:ite
+	| RETURN:ret expression:ex PV
+	| NL
+	;
+	
+conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: ((Noeud) i).ajouterFils(c); ((Noeud) i).ajouterFils(bla); RESULT=i;  :}
+	| IF:i PO condition:c PF AO blabla:th AF ELSE AO blabla:el AF {: ((Noeud) i).ajouterFils(c); ((Noeud) i).ajouterFils(th); ((Noeud) i).ajouterFils(el); RESULT=i; :}
+	;
+	
+iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: ((Noeud) w).ajouterFils(c); ((Noeud) w).ajouterFils(bla); RESULT=w; :}
+	;
+	
+condition ::= expression:ex1 OPBOOL:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
+	;
+
+affect ::= VAR:v EQ:eq expression:e PV {: ((Noeud) eq).ajouterFils(v); ((Noeud) eq).ajouterFils(e); RESULT=eq; :}
+	;
+
+defVar ::= TYPE:t vars:tabv PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}
+	| TYPE:t vars:tabv EQ expression:e PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}
+	;
+	
+vars ::= VAR:v VRG vars:tabv2 {: String[] tabv1 = {(String) v}; RESULT=Main.addAll(tabv1,(String[]) tabv2); :}
+	| VAR:v {: String[] tabv = {(String) v}; RESULT=tabv; :}
+	;
+	
+defFunc ::= TYPE:type VAR:fname PO defArgs PF AO blabla AF 
+	| VOID VAR PO defArgs PF AO blabla AF
+	| TYPE:type VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, (String) type); :}
+	| VOID VAR PO PF AO blabla AF
+	;
+	
+/*
+defFunc ::= TYPE PO defArgs PF AO blabla RETURN expression PV blabla AF
+	| VOID VAR PO defArgs PF AO blabla AF
+	| TYPE VAR PO PF AO blabla RETURN expression PV blabla AF
+	| VOID VAR PO PF AO blabla AF
+	;
+*/
+
+callFunc ::= VAR PO args PF
+	| VAR PO PF
+	;
+
+args ::= expression VRG args
+	| expression
+	;
+	
+defArgs ::= TYPE VAR
+	| TYPE VAR VRG defArgs
+	;
+
+expression ::= NUM:n OP:o expression:ex {: ((Noeud) o).ajouterFils(n); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
+	| VAR:v OP:o expression:ex {: ((Noeud) o).ajouterFils(v); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
+	| callFunc:f OP:o expression:ex {: ((Noeud) o).ajouterFils(f); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
+	| NUM:n {: RESULT=n; :}
+	| VAR:v {: RESULT=v; :}
+	| callFunc:f {: RESULT=f; :}
+	| PO expression:ex1 PF OP:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
+	| PO expression:ex PF {: RESULT=ex; :}
+	;

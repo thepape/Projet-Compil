@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+ ===================================================================
+  Le fichier build.xml du projet utilisé par ant
+
+  Les principales cibles:
+- install  -> compile et configure
+- compile  -> compile toutes les sources java
+- bindist  -> crée une distribution binaire
+- srcdist  -> crée une distribution source
+- javadoc  -> cree le javadoc
+- jar  -> crée le fichier jar du projet
+- clean -> supprime tous les fichiers générés
+
+  Authors:
+  Azim Roussanaly <Azim.Roussanaly@univ-lorraine.fr>
+
+  Copyright (c) 2013 - Université de Lorraine
+  ===================================================================
+-->
+
+<project default="compile" basedir=".">
+
+	<property environment="env" />
+
+
+<!--
+ =====================================================================
+ La structure du projet
+ =====================================================================
+ -->
+	<!-- Chargement des propriétes spécifiques au projet -->
+	<property name="file.properties" value="proj.properties" />
+	<property file="${file.properties}" />
+
+	<!-- Les répertoires initiaux du projet -->
+	<property name="dir.lib" value="lib" />
+	<property name="dir.extlib" value="extlib" />
+	<property name="dir.src" value="src" />
+	<property name="dir.doc" value="doc" />
+ 	<property name="dir.samples" value="samples" />
+	<property name="dir.bin" value="bin" />
+    
+	<!-- Les fichiers initiaux -->
+	<property name="file.readme" value="README.txt" />
+	<property name="file.licencefr" value="LICENSE.fr" />
+	<property name="file.licenceen" value="LICENSE.en" />
+	<property name="file.todo" value="TODO.txt" />
+	<property name="file.changelog" value="CHANGELOG.txt" />
+	<property name="file.buildxml" value="build.xml" />
+	<property name="file.log4j" value="logging.properties" />
+	<property name="file.buildwin" value="install.bat" />
+	<property name="file.buildunix" value="install.sh" />
+
+	<!-- Les répertoires engendrés -->
+	<property name="dir.build" value="build" />
+	<property name="dir.build.classes" value="${dir.build}/classes" />
+	<property name="dir.build.javadoc" value="${dir.build}/javadoc" />
+	<property name="dir.dist" value="dist" />
+
+	<!-- Les fichiers engendrés -->
+	<property name="file.jar" value="${dir.build}/${name}.jar" />
+<!--
+ =====================================================================
+ Define ant jflex and cup task
+ =====================================================================
+ -->
+	<taskdef name="jflex" classname="jflex.anttask.JFlexTask">
+		<classpath>
+			<pathelement path="${dir.extlib}/jflex-1.5.0.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="cup" classname="java_cup.anttask.CUPTask">
+		<classpath>
+			<pathelement path="${dir.extlib}/java-cup-11a.jar"/>
+		</classpath>
+	</taskdef>
+<!--
+ =====================================================================
+ Set classpath : append all jar files in ${dir.lib}
+ =====================================================================
+ -->
+	<target name="classpath" description="Set classpath">
+		<path id="classpath">
+			<fileset dir="${dir.lib}" includes="**/*.jar" />
+		</path>
+	</target>
+
+<!--
+ =====================================================================
+ Prepare built directories   : build, build/classes
+ =====================================================================
+ -->
+	<target name="prepare" depends="classpath" description="Prepare built directories">
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.build.classes}" />
+	</target>
+
+<!--
+ =====================================================================
+ Generate cup - jflex
+ =====================================================================
+ -->
+	<target name="cup" depends="jflex" description="Generate CUP">
+		<basename file="${cupfilename}" property="cupbasename" suffix="cup"/>
+		<cup srcfile="${dir.src}/${cupfilename}" destdir="${dir.src}" interface="true" parser="${cupbasename}Cup" symbols="${cupbasename}Sym"/>	
+	</target>
+	
+	<target name="jflex"  description="generate JFLEX">
+		<jflex file="${dir.src}/${jlexfilename}" destdir="${dir.src}"/>
+	</target>
+
+<!--
+ =====================================================================
+Compile java sources :
+ =====================================================================
+ -->
+	<target name="compile" depends="prepare, cup" description="Compilation des fichiers sources">
+		<javac srcdir="${dir.src}" deprecation="true" destdir="${dir.build.classes}" debug="${debug}" classpathref="classpath" includeAntRuntime="yes">
+		</javac>
+
+		<copy todir="${dir.build.classes}">
+			<fileset dir="${dir.src}">
+				<include name="**/*.*.properties}" />
+				<exclude name="**/*.*.lex}" />
+				<exclude name="**/*.*.cup}" />
+			</fileset>
+ 		</copy>        
+ 	</target>
+<!--
+ =====================================================================
+ install
+ =====================================================================
+ -->
+	<target name="install" depends="clean, compile" description="Install">
+	</target>
+
+
+<!--
+=====================================================================
+Create a jar file of the project:
+ =====================================================================
+-->
+	<target name="jar" depends="compile" description="Create a jar file of the project">
+		<jar jarfile="${file.jar}" basedir="${dir.build.classes}" />
+	</target>
+
+<!--
+ =====================================================================
+ Prepare dist
+ =====================================================================
+ -->
+	<target name="prepare-dist">
+		<mkdir dir="${dir.dist}" />
+	</target>
+
+<!--
+ =====================================================================
+ Create a src dist in a tar file
+ =====================================================================
+ -->
+	<target name="srcdist" depends="prepare-dist, clean" description="Create a src dist">
+
+		<tar tarfile="${dir.dist}/${name}-${version}-src.tar.gz" compression="gzip">
+
+			<tarfileset description="common files" dir="${basedir}" prefix="${name}">
+				<include name="${file.readme}" />
+				<include name="${file.licencefr}" />
+				<include name="${file.licenceen}" />
+				<include name="${file.changelog}" />
+				<include name="${file.properties}" />
+				<include name="${file.todo}" />
+				<include name="${file.buildxml}" />
+				<include name="${file.log4j}" />
+				<include name="${file.buildwin}" />
+				<include name="${file.buildunix}" />
+			</tarfileset>
+
+			<tarfileset description="samples" dir="${dir.samples}" prefix="${name}/${dir.samples}">
+				<include name="**" />
+				<exclude name="private/**" />
+			</tarfileset>
+
+			<tarfileset description="scripts" dir="${dir.bin}" prefix="${name}/${dir.bin}">
+				<include name="**" />
+				<exclude name="private/**" />
+				<exclude name="**/*.log" />
+			</tarfileset>
+
+			<tarfileset description="doc" dir="${dir.doc}" prefix="${name}/${dir.doc}">
+				<include name="**" />
+				<exclude name="**/*.aux" />
+				<exclude name="**/*.bbl" />
+				<exclude name="**/*.log" />
+			</tarfileset>
+
+			<tarfileset description="librairies jar" dir="${dir.lib}" prefix="${name}/${dir.lib}">
+				<include name="**/*.*" />
+			</tarfileset>
+			
+			<tarfileset description="extra librairies jar" dir="${dir.extlib}" prefix="${name}/${dir.extlib}">
+				<include name="**/*.*" />
+			</tarfileset>
+
+			<tarfileset description="src" dir="${dir.src}" prefix="${name}/${dir.src}">
+				<include name="**" />
+			</tarfileset>
+		</tar>
+	</target>
+
+	<!--
+=====================================================================
+ Create a binary dist in a tar file
+ =====================================================================
+ -->
+	<target name="bindist" depends="compile, javadoc, prepare-dist" description="Create a binary dist">
+
+		<tar tarfile="${dir.dist}/${name}-${version}-bin.tar.gz" compression="gzip">
+
+			<tarfileset description="common files" dir="${basedir}" prefix="${name}">
+				<include name="${file.readme}" />
+				<include name="${file.licencefr}" />
+				<include name="${file.licenceen}" />
+				<include name="${file.changelog}" />
+				<include name="${file.log4j}" />
+			</tarfileset>
+
+			<tarfileset description="samples" dir="${dir.samples}" prefix="${name}/${dir.samples}">
+				<include name="**" />
+				<exclude name="private/**" />
+			</tarfileset>
+
+			<tarfileset description="scripts" dir="${dir.bin}" prefix="${name}/${dir.bin}">
+				<include name="**" />
+				<exclude name="private/**" />
+			</tarfileset>
+
+			<tarfileset description="doc" dir="${dir.doc}" prefix="${name}/${dir.doc}">
+				<include name="**" />
+				<exclude name="**/*.aux" />
+				<exclude name="**/*.bbl" />
+				<exclude name="**/*.log" />
+			</tarfileset>
+
+			<tarfileset description="jars" dir="${dir.lib}" prefix="${name}/${dir.lib}">
+				<include name="**/*.*" />
+			</tarfileset>
+
+			<tarfileset description="classes" dir="${dir.build.classes}" prefix="${name}/${dir.build.classes}">
+				<include name="**/*.*" />
+			</tarfileset>
+
+			<tarfileset description="fichiers javadoc" dir="${dir.build.javadoc}" prefix="${name}/${dir.build.javadoc}">
+				<include name="**" />
+			</tarfileset>
+		</tar>
+	</target>
+
+	<!--
+ =====================================================================
+ Compiles the javadoc
+ =====================================================================
+ -->
+	<target name="javadoc" depends="classpath">
+		<mkdir dir="${dir.build.javadoc}" />
+		<javadoc sourcepath="${dir.src}"  classpathref="classpath" defaultexcludes="yes" destdir="${dir.build.javadoc}" author="true" version="true" use="true">
+			<doctitle>
+				<![CDATA[<h1>${Name} ${version} API</h1>]]>
+			</doctitle>
+			<bottom>
+				<![CDATA[<i>Copyright &#169; ${year} Université de Lorraine.</i>]]>
+			</bottom>
+
+	</javadoc>
+</target>
+
+<!--
+ =====================================================================
+ Faire le ménage
+ =====================================================================
+ -->
+<target name="clean">
+	<delete dir="${dir.build}" />
+	<delete dir="${dir.dist}" />
+	<delete file="${file.jar}" />
+	<delete includeemptydirs="true">
+		<fileset dir="${dir.src}" includes="**/generated/*"/>
+	</delete>
+</target>
+
+</project>
+
+

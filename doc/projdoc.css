@@ -1,0 +1,33 @@
+   body { 
+    font-family: Verdana, Arial, sans-serif; 
+    padding-left: 15px; padding-right: 15px; 
+    background-color: white; color: black;
+    width:70ex;
+   }
+
+   h1 { text-align: center; padding: 2px; }
+   h2 { 
+    background-color: #dddddd; color: black; 
+    background-position: left; 
+   }
+   a { font-weight: bold; }
+
+
+   pre { 
+    background-color: #ffcccc; width:80ex; 
+    padding: 0.5ex; 
+    padding-top: 0ex; padding-bottom: 0ex;
+    line-height: 150%;
+   }
+   .note { 
+    /* background-color: #ffffcc; */
+    width:60ex; 
+    font-size:smaller;
+    /* border: 1px black dotted; */
+    padding: 0.5ex;
+   }
+
+   li {
+   margin-top: 1ex;
+   }
+
