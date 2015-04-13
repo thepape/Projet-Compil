@@ -6,6 +6,25 @@
 package fr.ul.miage.exemple.generated;
 
 import fr.ul.miage.exemple.*;
+import fr.ul.miage.exemple.Arbre.*;
+
+
+
+
+action code {:
+   
+   Arbre arbre_programme = new Arbre(new Noeud("Racine_Programme"));
+   
+	public void afficher() {
+	
+		arbre_programme.affiche();		
+	}	
+	
+:};
+
+
+
+
 
 /* la grammaire */
 
@@ -15,17 +34,18 @@ non terminal prog, blabla, vars, instruction, affect, defVar, defFunc, callFunc,
 
 start with prog;
 
-prog ::= blabla:p {:  :} ;
+prog ::= blabla:p {: arbre_programme.getRacine().ajouterFils(p); afficher(); :} ;
 
 blabla ::= instruction blabla
 	| COM blabla
-	| instruction | COM
+	| instruction:i {: RESULT=i; :}
+	| COM
 	;
 
-instruction ::= defVar
+instruction ::= defVar:dv {: RESULT=dv; :}
 	| defFunc:df {:  :}
 	| callFunc:cf PV
-	| affect:aff
+	| affect:aff 
 	| conditionnelle:nif
 	| iteration:ite
 	| RETURN:ret expression:ex PV
@@ -46,7 +66,7 @@ affect ::= VAR:v EQ:eq expression:e PV {: ((Noeud) eq).ajouterFils(v); ((Noeud) 
 	;
 
 defVar ::= TYPE:t vars:tabv PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}
-	| TYPE:t vars:tabv EQ expression:e PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}
+	| TYPE:t vars:tabv EQ:eq expression:e PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); /*ajouter les fils*/ RESULT=eq; :}
 	;
 	
 vars ::= VAR:v VRG vars:tabv2 {: String[] tabv1 = {(String) v}; RESULT=Main.addAll(tabv1,(String[]) tabv2); :}
