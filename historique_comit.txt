@@ -1,0 +1,61 @@
+
+
+//J- 14 Avril 
+
+- Ajout d’une petite fonction qui affiche la TDS à la fin du main.
+(pour vérifier que les insertions se font correctement, on ne sait
+jamais…)
+
+
+- Mise à jour de la grammaire pour définir une variable.
+On n’utilise plus un tableau de string, mais une arraylist de
+Noeud(« variable », x/y/etc..) , (un peu plus facile à utiliser ^^)
+Ce qui permet de n’utiliser les « vars » (car « i,j,k,.. » ) uniquement
+pour les définition de variable
+
+
+- Affectation avec int.
+On peut faire
+a,b = 8;
+b = 10;
+un arbre est créer a chaque fois
+
+
+Suite :
+- la déclaration de plusieurs variable fonctionne
+- et l’ajout dans le TDS se fait bien avec la valeur fournie (avant 0)
+
+
+Gestion de la déclaration
+- création d’une arraylist qui contient les fils du programme
+- lorsque l’on déclare une variable du genre « int a = 7 » , l’arbre
+généré est :
+arbre_programme
+/
+=
+/  \
+a   7
+
+
+
+
+
+//J- 13 Avril
+- Mise à jour de la grammaire pour définir une variable.
+-On n’utilise plus un tableau de string, mais une arraylist de
+Noeud(« variable », x/y/etc..) , (un peu plus facile à utiliser ^^)
+-Ce qui permet de n’utiliser les « vars » (car « i,j,k,.. » ) uniquement
+pour les définition de variable
+
+
+
+
+
+//R-P- First Comit' 
+
+- Creation de la Grammaire
+- Creation du Lex
+- Creation TDS
+- Debut creation de l'arbre
+
+
