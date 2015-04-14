@@ -79,6 +79,6 @@ COM = (" "|\t)*\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/(" "|\t)*
 {TYPE}			{ Main.print("type:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.TYPE, yytext());}
 {OPBOOL}			{ Main.print("opbool:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.OPBOOL, new Noeud(yytext()));}
 {OP}			{ Main.print("op:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.OP, new Noeud(yytext()));}
-{VAR}         { Main.print("var:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.VAR, yytext());}
+{VAR}         { Main.print("var:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.VAR, new Noeud("variable",yytext()));}
 {NUM}         { Main.print("num:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.NUM, new Noeud("CST",yytext()));}
 {COM}         { Main.print("com:"+new Noeud("CST",yytext())+"#");return new Symbol(ParserSym.COM);}

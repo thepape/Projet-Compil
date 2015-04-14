@@ -1,3 +1,4 @@
-int a,b = 7;
-a,b = 8;
-b = 10;
+int i;
+int j,k = 6;
+
+i = 9;
