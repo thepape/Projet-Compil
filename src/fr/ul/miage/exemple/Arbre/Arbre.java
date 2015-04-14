@@ -12,6 +12,7 @@ public class Arbre {
 	public void affiche(){
 		
 		System.out.println("\n\nAffichage de l'arbre : ");
+		
 		racine.affiche();
 	}
 	

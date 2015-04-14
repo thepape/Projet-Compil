@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 import fr.ul.miage.exemple.Arbre.Noeud;
+import fr.ul.miage.exemple.TDS.TDS;
 import fr.ul.miage.exemple.generated.ParserCup;
 import fr.ul.miage.exemple.generated.Yylex;
 

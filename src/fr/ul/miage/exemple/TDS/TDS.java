@@ -1,7 +1,9 @@
-package fr.ul.miage.exemple;
+package fr.ul.miage.exemple.TDS;
 
 import java.util.*;
 import java.util.Map.Entry;
+
+import fr.ul.miage.exemple.Main;
 
 public class TDS {
 	
@@ -24,8 +26,38 @@ public class TDS {
 		
 	}
 	
+	
+	public boolean addVar(String varname, String type, String value) {
+
+		try {
+			 int x = Integer.parseInt(value);
+			 addVar( varname, type, x);
+			 
+		} catch(Exception e) {
+			return false;
+		}
+		return true;
+	}
+
+	
+	
+	
+	public void addVars(String[] varnames, String type, String value)
+	{
+		for(int i = 0; i < varnames.length; i++)
+		{
+			this.addVar(varnames[i], type, value);
+		}
+	}
+	
+	
+	
+	
+	
 	public boolean addVar(String varname, String type, int value)
 	{
+		System.out.println("On ajoute "+varname+" avec val = "+value);
+
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
 		HashMap<String,Object> hm;

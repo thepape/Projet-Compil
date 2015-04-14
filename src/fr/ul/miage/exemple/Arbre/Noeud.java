@@ -10,10 +10,10 @@ public class Noeud {
 	public ArrayList<Noeud> fils;
 	public Noeud pere;
 	
-	public Noeud(String e, String v)
+	public Noeud(String t, String v)
 	{
 		this.id = Noeud.count++;
-		this.type = e;
+		this.type = t;
 		this.valeur = v;
 		fils = new ArrayList<Noeud>();
 	}
@@ -49,18 +49,37 @@ public class Noeud {
 		}
 	}
 
+	
+	public void ajouterFils(ArrayList<Noeud> l){
+		for(Noeud n : l) {
+			ajouterFils(n);
+		}
+	}
+	
+	
 
+	public Noeud copy(){
+		return new Noeud(type,valeur);
+	}
+	
+	
 	
 	public void affiche(){
 		
 		System.out.println("Noeud type : "+type+" | valeur : "+valeur+" | nb fils : "+fils.size()+" | "+this);
 		
 		for (Noeud n : fils){
-			System.out.println("----- Noeud type : "+n.type+" | valeur : "+n.valeur+" | nb fils : "+n.fils.size()+" | "+n);
+			if(n!=null){
+				System.out.println("----- Noeud type : "+n.type+" | valeur : "+n.valeur+" | nb fils : "+n.fils.size()+" | "+n);
+			} else {
+				System.out.println("----- Noeud type : null !!");
+			}
 		}
 		
 		for (Noeud n : fils){
-			n.affiche();
+			if(n!=null) {
+				n.affiche();
+			} 
 		}
 	}
 

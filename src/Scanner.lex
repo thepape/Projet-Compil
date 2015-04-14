@@ -5,6 +5,10 @@
  */
 
 package fr.ul.miage.exemple.generated;
+
+import fr.ul.miage.exemple.Arbre.*;
+import fr.ul.miage.exemple.TDS.*;
+
 import java_cup.runtime.Symbol;
 import fr.ul.miage.exemple.*;
 import java.util.*;
