@@ -37,15 +37,15 @@ non terminal prog, blabla, vars, instruction, affect, defVar, defFunc, callFunc,
 
 start with prog;
 
-prog ::= blabla:p {: arbre_programme.getRacine().ajouterFils(p); afficher(); :} ;
+prog ::= blabla:p {: /*arbre_programme.getRacine().ajouterFils(p);*/ afficher(); :} ;
 
-blabla ::= instruction blabla
-	| COM blabla
-	| instruction:i {: RESULT=i; :}
-	| COM
+blabla ::= instruction:i blabla {: if(i != null) arbre_programme.getRacine().ajouterFils(i);  :}
+		| COM blabla
+		| instruction:i {: arbre_programme.getRacine().ajouterFils(i); :}
+		| COM
 	;
 
-instruction ::= defVar:dv {: RESULT=dv; :}
+instruction ::= defVar:dv {: :}
 	| defFunc:df {:  :}
 	| callFunc:cf PV
 	| affect:aff {: RESULT=aff; :}
@@ -71,17 +71,34 @@ affect ::= VAR:v EQ:eq expression:e PV {:
 												n.ajouterFils(v);
 												n.ajouterFils(e);
 												RESULT = n;
-												
 										 :}
 	;
+	
 
-defVar ::= TYPE:t VAR:v PV {: Main.tds.addVar(((Noeud)v).valeur, (String) t, 0); :}
-	| TYPE:t VAR:v EQ:eq expression:e PV {:Main.tds.addVar(((Noeud)v).valeur , (String) t, ((Noeud)e).valeur); :}
+
+defVar ::= TYPE:t VAR:v vars:vs PV {: Main.tds.addVar(((Noeud)v).valeur, (String) t, 0);
+									  for(Noeud n : (ArrayList<Noeud>)vs){
+											Main.tds.addVar(((Noeud)n).valeur, (String) t, 0);
+									  }  
+									:}
+	
+	| TYPE:t VAR:v vars:vs EQ:eq expression:e PV {:Main.tds.addVar(((Noeud)v).valeur , (String) t, ((Noeud)e).valeur);
+													for(Noeud n : (ArrayList<Noeud>)vs){
+														Main.tds.addVar(((Noeud)n).valeur , (String) t, ((Noeud)e).valeur);
+									  				}
+										 		:}
 	;
 	
 	
-
+vars ::= VRG VAR:v vars:vs{: ArrayList<Noeud> l1 = new ArrayList<>();
+							l1.add((Noeud)v);
+							if(vs!=null) { l1.addAll( (ArrayList)vs); }
+							RESULT=l1 ;
+							:} | {:System.out.println("note/vars"); RESULT=new ArrayList<Noeud>(); :};
 	
+	
+
+
 	
 
 
