@@ -37,7 +37,7 @@ non terminal prog, blabla, vars, instruction, affect, defVar, defFunc, callFunc,
 
 start with prog;
 
-prog ::= blabla:p {: arbre_programme.getRacine().ajouterFils(listVar_provisoire); afficher(); :} ;
+prog ::= blabla:p {: arbre_programme.getRacine().ajouterFils(p); afficher(); :} ;
 
 blabla ::= instruction blabla
 	| COM blabla
@@ -48,7 +48,7 @@ blabla ::= instruction blabla
 instruction ::= defVar:dv {: RESULT=dv; :}
 	| defFunc:df {:  :}
 	| callFunc:cf PV
-	| affect:aff 
+	| affect:aff {: RESULT=aff; :}
 	| conditionnelle:nif
 	| iteration:ite
 	| RETURN:ret expression:ex PV
@@ -65,36 +65,26 @@ iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: ((Noeud) w).ajouterF
 condition ::= expression:ex1 OPBOOL:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
 	;
 
-affect ::= vars:tabv EQ:eq expression:e PV {:	
-												for(int i=0; i< ((String[]) tabv).length ; i++) {
-													Noeud n = ((Noeud)eq).copy();
-													String s = ((String[]) tabv)[i];
-													n.ajouterFils(new Noeud("variable",s));
-													n.ajouterFils(e);
-													listVar_provisoire.add(n);
-												}
+
+affect ::= VAR:v EQ:eq expression:e PV {:	
+												Noeud n = ((Noeud)eq).copy();
+												n.ajouterFils(v);
+												n.ajouterFils(e);
+												RESULT = n;
+												
 										 :}
 	;
 
-defVar ::= TYPE:t vars:tabv PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}
-	| TYPE:t vars:tabv EQ:eq expression:e PV {:
-												Main.tds.addVars((String[]) tabv, (String) t, ((Noeud)e).valeur);
-												
-												for(int i=0; i< ((String[]) tabv).length ; i++) {
-													Noeud n = ((Noeud)eq).copy();
-													String s = ((String[]) tabv)[i];
-													n.ajouterFils(new Noeud("variable",s));
-													n.ajouterFils(e);
-													listVar_provisoire.add(n);
-												}
-													  
-											 :}
+defVar ::= TYPE:t VAR:v PV {: Main.tds.addVar(((Noeud)v).valeur, (String) t, 0); :}
+	| TYPE:t VAR:v EQ:eq expression:e PV {:Main.tds.addVar(((Noeud)v).valeur , (String) t, ((Noeud)e).valeur); :}
 	;
 	
-vars ::= VAR:v VRG vars:tabv2 {: String[] tabv1 = {(String) v}; RESULT=Main.addAll(tabv1,(String[]) tabv2); :}
-	| VAR:v {: String[] tabv = {(String) v}; RESULT=tabv; :}
-	;
 	
+
+	
+	
+
+
 defFunc ::= TYPE:type VAR:fname PO defArgs PF AO blabla AF 
 	| VOID VAR PO defArgs PF AO blabla AF
 	| TYPE:type VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, (String) type); :}
@@ -125,7 +115,7 @@ expression ::= NUM:n OP:o expression:ex {: ((Noeud) o).ajouterFils(n); ((Noeud) 
 	| VAR:v OP:o expression:ex {: ((Noeud) o).ajouterFils(v); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
 	| callFunc:f OP:o expression:ex {: ((Noeud) o).ajouterFils(f); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
 	| NUM:n {: RESULT=n; :}
-	| VAR:v {: RESULT=v; :}
+	| VAR:v {: RESULT=(Noeud)v; :}
 	| callFunc:f {: RESULT=f; :}
 	| PO expression:ex1 PF OP:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
 	| PO expression:ex PF {: RESULT=ex; :}
