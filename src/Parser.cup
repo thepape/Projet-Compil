@@ -65,7 +65,15 @@ iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: ((Noeud) w).ajouterF
 condition ::= expression:ex1 OPBOOL:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
 	;
 
-affect ::= VAR:v EQ:eq expression:e PV {: ((Noeud) eq).ajouterFils(v); ((Noeud) eq).ajouterFils(e); RESULT=eq; :}
+affect ::= vars:tabv EQ:eq expression:e PV {:	
+												for(int i=0; i< ((String[]) tabv).length ; i++) {
+													Noeud n = ((Noeud)eq).copy();
+													String s = ((String[]) tabv)[i];
+													n.ajouterFils(new Noeud("variable",s));
+													n.ajouterFils(e);
+													listVar_provisoire.add(n);
+												}
+										 :}
 	;
 
 defVar ::= TYPE:t vars:tabv PV {: Main.tds.addVars((String[]) tabv, (String) t, 0); :}

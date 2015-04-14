@@ -77,7 +77,7 @@ public class Noeud {
 		}
 		
 		for (Noeud n : fils){
-			if(n!=null) {
+			if(n!=null && n.fils.size()>0) {
 				n.affiche();
 			} 
 		}
