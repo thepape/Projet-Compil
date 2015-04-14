@@ -74,6 +74,10 @@ public class Main {
 		try {
 			parser.parse();
 			System.out.println("Fichier correctement analysé");
+			
+			tds.affiche();
+			//System.out.println("test : "+tds.toString());
+
 		} catch (Exception e) {
 			System.err.println("...Erreur de syntaxe ");
 			e.printStackTrace();

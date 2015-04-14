@@ -2,3 +2,4 @@ int i;
 int j,k = 6;
 
 i = 9;
+j = i;

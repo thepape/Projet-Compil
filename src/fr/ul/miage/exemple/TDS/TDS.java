@@ -75,7 +75,7 @@ public class TDS {
 		}
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
-		entry.put("num", new Integer(count++));
+		entry.put("num", new Integer(count));
 		entry.put("idf", varname);
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "var");
@@ -171,4 +171,20 @@ public class TDS {
 		return true;
 	}
 
+	
+	
+	public void affiche(){
+
+		String s = "\nTDS : \n";
+		
+		for(int i=1; i<= table.size() ; i++) {
+			s = s+" - "+i+" - ";
+			HashMap<String,Object> h = table.get(i);
+			s = s + h;
+			s = s+"\n";
+		}
+	
+		System.out.println(s);
+	}
+	
 }
