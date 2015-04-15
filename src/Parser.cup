@@ -31,17 +31,17 @@ action code {:
 
 /* la grammaire */
 
-terminal VAR, NUM, PV, AO, AF, PO, PF, NL, EQ, OP, OPBOOL, VRG, TYPE, RETURN, VOID, COM, IF, ELSE, WHILE;
+terminal VAR, NUM, PV, AO, AF, PO, PF, NL, EQ, OPBOOL, VRG, INT, RETURN, VOID, COM, IF, ELSE, WHILE, ADD, MUL;
 
-non terminal prog, blabla, vars, instruction, affect, defVar, defFunc, callFunc, args, defArgs, expression, conditionnelle, condition, iteration;
+non terminal prog, membre_const, membre_dyn, atome_dyn, atome_const, blabla, vars, instruction, affect, defVar, defFunc, callFunc, args, defArgs, expr_dyn, expr_const, expression, conditionnelle, condition, iteration;
 
 start with prog;
 
 prog ::= blabla:p {: /*arbre_programme.getRacine().ajouterFils(p);*/ afficher(); :} ;
 
-blabla ::= instruction:i blabla {: if(i != null) arbre_programme.getRacine().ajouterFils(i);  :}
+blabla ::= instruction:i blabla {: if(i != null){ arbre_programme.getRacine().ajouterFils(i); System.out.println(((Noeud)i).id);}  :}
 		| COM blabla
-		| instruction:i {: arbre_programme.getRacine().ajouterFils(i); :}
+		| instruction:i {: arbre_programme.getRacine().ajouterFils(i); System.out.println(((Noeud)i).id); :}
 		| COM
 	;
 
@@ -66,52 +66,53 @@ condition ::= expression:ex1 OPBOOL:o expression:ex2 {: ((Noeud) o).ajouterFils(
 	;
 
 
-affect ::= VAR:v EQ:eq expression:e PV {:	
-												Noeud n = ((Noeud)eq).copy();
-												n.ajouterFils(v);
+affect ::= VAR:v EQ:eq expr_dyn:e PV {:	
+												Noeud n = new Noeud("=");
+												n.ajouterFils(new Noeud("IDF", Main.tds.find((String)v)));
 												n.ajouterFils(e);
 												RESULT = n;
 										 :}
+	| VAR:v EQ:eq expr_const:e PV {: Noeud n = new Noeud("=");
+												n.ajouterFils(new Noeud("IDF", Main.tds.find((String)v)));
+												n.ajouterFils(new Noeud("CST",(int) e));
+												RESULT = n;
+										:}
 	;
 	
 
 
-defVar ::= TYPE:t VAR:v vars:vs PV {: Main.tds.addVar(((Noeud)v).valeur, (String) t, 0);
-									  for(Noeud n : (ArrayList<Noeud>)vs){
-											Main.tds.addVar(((Noeud)n).valeur, (String) t, 0);
+defVar ::= INT VAR:v vars:vs PV {: Main.tds.addVar((String) v, "int", 0);
+									  for(String s : (ArrayList<String>)vs){
+											Main.tds.addVar((String) s, "int", 0);
 									  }  
 									:}
 	
-	| TYPE:t VAR:v vars:vs EQ:eq expression:e PV {:Main.tds.addVar(((Noeud)v).valeur , (String) t, ((Noeud)e).valeur);
-													for(Noeud n : (ArrayList<Noeud>)vs){
-														Main.tds.addVar(((Noeud)n).valeur , (String) t, ((Noeud)e).valeur);
+	| INT:t VAR:v vars:vs EQ:eq expr_const:e PV {:Main.tds.addVar((String) v , "int", (int) e);
+													for(String s : (ArrayList<String>)vs){
+														Main.tds.addVar((String) s , "int", (int) e);
 									  				}
 										 		:}
 	;
 	
 	
-vars ::= VRG VAR:v vars:vs{: ArrayList<Noeud> l1 = new ArrayList<>();
-							l1.add((Noeud)v);
+vars ::= VRG VAR:v vars:vs{: ArrayList<String> l1 = new ArrayList<String>();
+							l1.add((String)v);
 							if(vs!=null) { l1.addAll( (ArrayList)vs); }
 							RESULT=l1 ;
-							:} | {:System.out.println("note/vars"); RESULT=new ArrayList<Noeud>(); :};
-	
-	
+							:} 
+	| {:System.out.println("note/vars"); RESULT=new ArrayList<String>(); :}
+	;
 
-
-	
-
-
-defFunc ::= TYPE:type VAR:fname PO defArgs PF AO blabla AF 
+defFunc ::= INT VAR:fname PO defArgs PF AO blabla AF 
 	| VOID VAR PO defArgs PF AO blabla AF
-	| TYPE:type VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, (String) type); :}
+	| INT VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, "int"); :}
 	| VOID VAR PO PF AO blabla AF
 	;
 	
 /*
-defFunc ::= TYPE PO defArgs PF AO blabla RETURN expression PV blabla AF
+defFunc ::= INT PO defArgs PF AO blabla RETURN expression PV blabla AF
 	| VOID VAR PO defArgs PF AO blabla AF
-	| TYPE VAR PO PF AO blabla RETURN expression PV blabla AF
+	| INT VAR PO PF AO blabla RETURN expression PV blabla AF
 	| VOID VAR PO PF AO blabla AF
 	;
 */
@@ -124,10 +125,52 @@ args ::= expression VRG args
 	| expression
 	;
 	
-defArgs ::= TYPE VAR
-	| TYPE VAR VRG defArgs
+defArgs ::= INT VAR
+	| INT VAR VRG defArgs
+	;
+	
+expr_const ::= expr_const:e1 ADD:op membre_const:e2 {: if(((String) op).equals("+")){
+															RESULT=((int) e1 + (int) e2);
+														}
+														else{
+															RESULT=((int) e1 - (int) e2);
+														}
+														 :}
+	| membre_const:n {: RESULT=n; :}
 	;
 
+membre_const ::= membre_const:e1 MUL:op atome_const:e2 {: if(((String) op).equals("*")){
+															RESULT=((int) e1 * (int) e2);
+														}
+														else{
+															RESULT=((int) e1 / (int) e2);
+														}
+														 :}
+	| atome_const:a {: RESULT=a; :}
+	;
+	
+atome_const ::= NUM:n {: RESULT=n; :}
+	| PO expr_const:e PF {: RESULT=e; :}
+	;
+	
+expr_dyn ::= expr_dyn:e1 ADD:op membre_dyn:e2 {: Noeud o = new Noeud((String)op);
+													o.ajouterFils(e1); o.ajouterFils(e2);
+													RESULT=o; :}
+	| membre_dyn:n {: RESULT=n; :}
+	;
+
+membre_dyn ::= membre_dyn:e1 MUL:op atome_dyn:e2 {: Noeud o = new Noeud((String)op);
+													o.ajouterFils(e1); o.ajouterFils(e2);
+													RESULT=o; :}
+	| atome_dyn:a {: RESULT=a; :}
+	;
+	
+atome_dyn ::= VAR:v {: RESULT=new Noeud("IDF", Main.tds.find((String) v)); :}
+	| callFunc
+	| PO expr_dyn PF
+	;
+
+/*
 expression ::= NUM:n OP:o expression:ex {: ((Noeud) o).ajouterFils(n); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
 	| VAR:v OP:o expression:ex {: ((Noeud) o).ajouterFils(v); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
 	| callFunc:f OP:o expression:ex {: ((Noeud) o).ajouterFils(f); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
@@ -137,3 +180,4 @@ expression ::= NUM:n OP:o expression:ex {: ((Noeud) o).ajouterFils(n); ((Noeud) 
 	| PO expression:ex1 PF OP:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
 	| PO expression:ex PF {: RESULT=ex; :}
 	;
+	*/

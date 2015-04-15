@@ -6,11 +6,11 @@ public class Noeud {
 	public static int count = 0;
 	public int id;
 	public String type;
-	public String valeur;
+	public Integer valeur;
 	public ArrayList<Noeud> fils;
 	public Noeud pere;
 	
-	public Noeud(String t, String v)
+	public Noeud(String t, Integer v)
 	{
 		this.id = Noeud.count++;
 		this.type = t;
@@ -22,11 +22,11 @@ public class Noeud {
 	{
 		this.id = Noeud.count++;
 		this.type = e;
-		this.valeur = "";
+		this.valeur = null;
 		fils = new ArrayList<Noeud>();
 	}
 
-	public void ajouterFils(String e, String v)
+	public void ajouterFils(String e, Integer v)
 	{
 		this.fils.add(new Noeud(e,v));
 	}
@@ -63,14 +63,14 @@ public class Noeud {
 	}
 	
 	
-	
+	/*
 	public void affiche(){
 		
-		System.out.println("Noeud type : "+type+" | valeur : "+valeur+" | nb fils : "+fils.size()+" | "+this);
+		System.out.println("["+this.id+"]Noeud type : "+type+" | valeur : "+valeur+" | nb fils : "+fils.size()+" | "+this);
 		
 		for (Noeud n : fils){
 			if(n!=null){
-				System.out.println("----- Noeud type : "+n.type+" | valeur : "+n.valeur+" | nb fils : "+n.fils.size()+" | "+n);
+				System.out.println("----- ["+n.id+"]Noeud type : "+n.type+" | valeur : "+n.valeur+" | nb fils : "+n.fils.size()+" | "+n);
 			} else {
 				System.out.println("----- Noeud type : null !!");
 			}
@@ -82,7 +82,56 @@ public class Noeud {
 			} 
 		}
 	}
-
-
+*/
+	public void affiche()
+	{
+		this.affiche(0);
+	}
+	
+	public void affiche(int niveau)
+	{
+		//creation d'un decallage par tabulation pour l'effet visuel
+		StringBuffer sb = new StringBuffer("");
+		
+		for(int i=0; i < niveau;i++)
+		{
+			sb.append("\t\t");
+		}
+		
+		String shift = sb.toString();
+		
+		//si c une feuille, on l'imprime avec le decallage
+		if(this.fils.size() == 0)
+		{
+			System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" )[]");
+		}
+		else
+		{
+			//sinon, on relance l'affichage recursif sur la premiere moitie des fils de ce noeuds un niveau de tab + loin
+			int milieu = (int) Math.ceil((double) this.fils.size()/2); 
+			
+			for(int i = 0; i < milieu; i++)
+			{
+				this.fils.get(i).affiche(niveau+1);
+			}
+			//ensuite on imprime ce noeud
+			StringBuffer sbFils = new StringBuffer("");
+			
+			for(int i=0; i < this.fils.size(); i++)
+			{
+				sbFils.append(this.fils.get(i).id+"|");
+			}
+			//on enleve le dernier "|"
+			sbFils.deleteCharAt(sbFils.length()-1);
+			
+			System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" ):["+sbFils.toString()+"]");
+			
+			for(int i = milieu; i < this.fils.size(); i++)
+			{
+				this.fils.get(i).affiche(niveau+1);
+			}
+		}
+		
+	}
 
 }

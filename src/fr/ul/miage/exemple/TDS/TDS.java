@@ -17,8 +17,51 @@ public class TDS {
 		count = 1;
 	}
 	
-	public Object get(int num, String colonne)
+	private String virerEspaces(String s)
 	{
+		String res = s;
+		
+		if(s.contains(" "))
+		{
+			res = s.replaceAll(" ", "");
+		}
+		
+		return res;
+	}
+	
+	/**
+	 * retourne le numero d'une variable ou fonction dans la TDS en fonction de son nom (idf)
+	 * @param name nom de la variable ou fonction
+	 * @return id numerique
+	 */
+	public Integer find(String pname)
+	{
+		String name = this.virerEspaces(pname);
+		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
+		Entry<Integer, HashMap<String, Object>> e;
+		HashMap<String,Object> entree;
+		
+		while(it.hasNext())
+		{
+			e = it.next();
+			entree = e.getValue();
+			String entreeNom = (String) entree.get("idf");
+			int entreeContext = (int) entree.get("context");
+			
+			if((entree != null) && entreeNom.equals(name) && (entreeContext == Main.currentContext))
+			{
+				return e.getKey();
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	public Object get(int num, String col)
+	{
+		String colonne = this.virerEspaces(col);
+		
 		if(num > 0 && num <= this.table.size())
 			return this.table.get(num).get(colonne);
 		else
@@ -67,7 +110,7 @@ public class TDS {
 			e = it.next();
 			hm = e.getValue();
 			
-			if(hm != null && hm.get("idf").equals(varname) && (Integer) hm.get("context") == Main.currentContext)
+			if(hm != null && hm.get("idf").equals(this.virerEspaces(varname)) && (Integer) hm.get("context") == Main.currentContext)
 			{
 				return false;
 			}
@@ -76,7 +119,7 @@ public class TDS {
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
 		entry.put("num", new Integer(count));
-		entry.put("idf", varname);
+		entry.put("idf", this.virerEspaces(varname));
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "var");
 		entry.put("type", type);
@@ -104,7 +147,7 @@ public class TDS {
 	
 	public boolean addVar(String varname, String type)
 	{
-		return this.addVar(varname, type, 0);
+		return this.addVar(this.virerEspaces(varname), type, 0);
 	}
 	
 	public boolean addParam(String varname, String type)
@@ -118,7 +161,7 @@ public class TDS {
 			e = it.next();
 			hm = e.getValue();
 			
-			if(hm != null && hm.get("idf").equals(varname) && (Integer) hm.get("context") == Main.currentContext)
+			if(hm != null && hm.get("idf").equals(this.virerEspaces(varname)) && (Integer) hm.get("context") == Main.currentContext)
 			{
 				return false;
 			}
@@ -127,7 +170,7 @@ public class TDS {
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
 		entry.put("num", new Integer(count++));
-		entry.put("idf", varname);
+		entry.put("idf", this.virerEspaces(varname));
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "param");
 		entry.put("type", type);
@@ -152,7 +195,7 @@ public class TDS {
 			e = it.next();
 			hm = e.getValue();
 			
-			if(hm != null && hm.get("idf").equals(funcname) && (Integer) hm.get("context") == Main.currentContext)
+			if(hm != null && hm.get("idf").equals(this.virerEspaces(funcname)) && (Integer) hm.get("context") == Main.currentContext)
 			{
 				return false;
 			}
@@ -161,7 +204,7 @@ public class TDS {
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
 		entry.put("num", new Integer(count++));
-		entry.put("idf", funcname);
+		entry.put("idf", this.virerEspaces(funcname));
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "func");
 		entry.put("type", type);

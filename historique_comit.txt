@@ -1,4 +1,14 @@
+﻿//RP - 15 avril
 
+- creation de symboles expr_dyn et expr_const pour les expression dynamiques (incluant des variables/appels de fonctions)
+et les expressions de constantes, calculable avant l'execution de l'arbre.
+- modification du symbole TYPE en INT, puisque le programme ne devra gérer que des int
+- la valeur d'un noeud passe du type String au type Integer, puisque la valeur d'un noeud sera soit son numero dans la TDS
+pour une variable/fonction (IDF), ou sa valeur numerique pour une constante (CST). Tous les autres noeuds n'ont pas besoin
+de valeur.
+- amelioration de l'algo d'affichage de l'arbre
+- certains symboles LEX ne retournent plus des noeuds mais la valeur de yytext(). Le code cup a donc été modifié en
+conséquence.
 
 //J- 14 Avril 
 
