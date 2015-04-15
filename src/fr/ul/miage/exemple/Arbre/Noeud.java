@@ -31,6 +31,24 @@ public class Noeud {
 		this.fils.add(new Noeud(e,v));
 	}
 	
+	public void empilerFils(Noeud n)
+	{
+		ArrayList<Noeud> newFils = new ArrayList<Noeud>();
+		newFils.add(n);
+		
+		for(Noeud f : this.fils)
+		{
+			newFils.add(f);
+		}
+		
+		this.fils = newFils;
+	}
+	
+	public void empilerFils(Object n)
+	{
+		this.empilerFils((Noeud) n); 
+	}
+	
 	public void ajouterFils(Noeud n)
 	{
 		this.fils.add(n);

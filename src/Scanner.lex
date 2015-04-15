@@ -82,5 +82,5 @@ COM = (" "|\t)*\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/(" "|\t)*
 {MUL}			{ Main.print("op:"+yytext()+"#");return new Symbol(ParserSym.MUL, yytext());}
 {ADD}			{ Main.print("op:"+yytext()+"#");return new Symbol(ParserSym.ADD, yytext());}
 {VAR}         { Main.print("var:"+yytext()+"#");return new Symbol(ParserSym.VAR, yytext());}
-{NUM}         { Main.print("num:"+yytext()+"#");return new Symbol(ParserSym.NUM, Integer.parseInt(yytext()));}
+{NUM}         { Main.print("num:"+yytext()+"#");return new Symbol(ParserSym.NUM, Integer.parseInt(Main.virerEspaces(yytext())));}
 {COM}         { Main.print("com:"+yytext()+"#");return new Symbol(ParserSym.COM);}

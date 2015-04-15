@@ -39,9 +39,9 @@ start with prog;
 
 prog ::= blabla:p {: /*arbre_programme.getRacine().ajouterFils(p);*/ afficher(); :} ;
 
-blabla ::= instruction:i blabla {: if(i != null){ arbre_programme.getRacine().ajouterFils(i); System.out.println(((Noeud)i).id);}  :}
+blabla ::= instruction:i blabla {: if(i != null){ arbre_programme.getRacine().empilerFils(i); }  :}
 		| COM blabla
-		| instruction:i {: arbre_programme.getRacine().ajouterFils(i); System.out.println(((Noeud)i).id); :}
+		| instruction:i {: arbre_programme.getRacine().empilerFils(i); :}
 		| COM
 	;
 

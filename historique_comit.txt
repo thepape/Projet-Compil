@@ -1,5 +1,7 @@
 ﻿//RP - 15 avril
 
+- correction de l'ordre d'ajout des fils dans la regle blabla::= grace a la methode empilerFils
+
 - creation de symboles expr_dyn et expr_const pour les expression dynamiques (incluant des variables/appels de fonctions)
 et les expressions de constantes, calculable avant l'execution de l'arbre.
 - modification du symbole TYPE en INT, puisque le programme ne devra gérer que des int

@@ -28,6 +28,18 @@ public class Main {
 	public static int currentContext=0;
 	public static TDS tds = new TDS();
 	
+	public static String virerEspaces(String s)
+	{
+		String res = s;
+		
+		if(s.contains(" "))
+		{
+			res = s.replaceAll(" ", "");
+		}
+		
+		return res;
+	}
+	
 	public static void print(String st)
 	{
 		if(debugMode)
