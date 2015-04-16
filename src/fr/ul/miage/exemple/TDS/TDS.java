@@ -210,9 +210,9 @@ public class TDS {
 		entry.put("categ", "param");
 		entry.put("type", type);
 		
-		Integer nbparam = (Integer) this.get(Main.currentContext, "nbparam");
+		Integer nbparam = (Integer) this.get(context, "nbparam");
 		entry.put("rang", nbparam);
-		this.table.get(Main.currentContext-1).put("nbparam", ++nbparam);
+		this.table.get(context).put("nbparam", ++nbparam);
 		
 		this.table.put(count++, entry);
 		

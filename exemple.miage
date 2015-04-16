@@ -3,7 +3,7 @@ int k = 7;
 i = 9;
 k =8;
 
-int f(){
+int f( int a, int b){
 	int k = 9;
 	i=k+j;
 	return k*i+2;

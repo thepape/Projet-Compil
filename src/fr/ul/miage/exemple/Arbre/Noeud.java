@@ -106,12 +106,13 @@ public class Noeud {
 		return(this.id == n.id);
 	}
 	
-	public void modifierContexteDesFils(int contexte)
+	public void modifierContexteDesFils(int contexte) throws Exception
 	{
 		for(Noeud f : this.fils)
 		{
 			if(f.type.equals("DEF"))
 			{
+				
 				//on change le contexte de la variable locale
 				Main.tds.set(f.valeur, "context", contexte);
 				
@@ -119,18 +120,32 @@ public class Noeud {
 				int nbloc = (Integer) Main.tds.get(contexte, "nbloc");
 				Main.tds.set(contexte, "nbloc", ++nbloc);
 				
+				//on verifie s'il existe deja une variable definie du meme nom dans le meme contexte
+				String fname = (String) Main.tds.get(f.valeur, "idf");
+				Integer num_Of_First_Var_With_That_Name = Main.tds.find(fname, contexte);
+				
+				if(num_Of_First_Var_With_That_Name != f.valeur)
+				{	
+					String cxt = "global";
+					if(contexte > 0)
+						cxt = (String) Main.tds.get(contexte, "idf");
+						
+					throw new Exception("La variable "+fname+" est existe deja dans le contexte "+cxt);
+				}
+				
 			}
 			else if(f.type.equals("IDF"))
 			{
 				//on verifie s'il existe une variable locale pour le contexte
-				//on recupere le nom de la variable du noeud IDF
+				//on recupere le nom de la variable du noeud IDF (qui n'est pas locale au depart)
 				String name = (String) Main.tds.get(f.valeur, "idf");
-				//on cherche s'il existe existe une variable locale du meme nom
+				//on cherche s'il existe existe une variable locale du meme nom pour ce contexte
 				Integer numVarLoc = Main.tds.find(name, contexte);
 				
 				//si oui
 				if(numVarLoc != null)
 				{
+					//alors la variable appelee dans le noeud IDF sera la variable locale
 					f.valeur = numVarLoc;
 				}
 			}
