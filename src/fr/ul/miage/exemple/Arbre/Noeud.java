@@ -1,6 +1,8 @@
 package fr.ul.miage.exemple.Arbre;
 
 import java.util.ArrayList;
+
+import fr.ul.miage.exemple.Main;
 public class Noeud {
 	
 	public static int count = 0;
@@ -104,6 +106,60 @@ public class Noeud {
 		return(this.id == n.id);
 	}
 	
+	public void modifierContexteDesFils(int contexte)
+	{
+		for(Noeud f : this.fils)
+		{
+			if(f.type.equals("DEF"))
+			{
+				//on change le contexte de la variable locale
+				Main.tds.set(f.valeur, "context", contexte);
+				
+				//on change le nombre de var locales de la fonction
+				int nbloc = (Integer) Main.tds.get(contexte, "nbloc");
+				Main.tds.set(contexte, "nbloc", ++nbloc);
+				
+			}
+			else if(f.type.equals("IDF"))
+			{
+				//on verifie s'il existe une variable locale pour le contexte
+				//on recupere le nom de la variable du noeud IDF
+				String name = (String) Main.tds.get(f.valeur, "idf");
+				//on cherche s'il existe existe une variable locale du meme nom
+				Integer numVarLoc = Main.tds.find(name, contexte);
+				
+				//si oui
+				if(numVarLoc != null)
+				{
+					f.valeur = numVarLoc;
+				}
+			}
+			else if(f.fils.size() > 0)
+			{
+				f.modifierContexteDesFils(contexte);
+			}
+		}
+	}
+	
+	public void supprimerNoeudsDef()
+	{
+		for(int i = 0; i < this.fils.size(); i++)
+		{
+			if(this.fils.get(i) != null)
+			{
+				if(this.fils.get(i).type.equals("DEF"))
+				{
+					this.fils.remove(i);
+					i--;
+				}
+				else if(this.fils.get(i).fils.size() > 0)
+				{
+					this.fils.get(i).supprimerNoeudsDef();
+				}
+			}
+		}
+	}
+	
 	/*
 	public void affiche(){
 		
@@ -144,7 +200,10 @@ public class Noeud {
 		//si c une feuille, on l'imprime avec le decallage
 		if(this.fils.size() == 0)
 		{
-			System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" )[]");
+			if(valeur != null)
+				System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" )[]");
+			else
+				System.out.println(shift+"["+id+"]( "+type+" )[]");
 		}
 		else
 		{
@@ -165,7 +224,10 @@ public class Noeud {
 			//on enleve le dernier "|"
 			sbFils.deleteCharAt(sbFils.length()-1);
 			
-			System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" ):["+sbFils.toString()+"]");
+			if(valeur != null)
+				System.out.println(shift+"["+id+"]( "+type+" | "+valeur+" ):["+sbFils.toString()+"]");
+			else
+				System.out.println(shift+"["+id+"]( "+type+" ):["+sbFils.toString()+"]");
 			
 			for(int i = milieu; i < this.fils.size(); i++)
 			{

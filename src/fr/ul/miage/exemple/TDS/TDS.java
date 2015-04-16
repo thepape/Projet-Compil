@@ -48,7 +48,31 @@ public class TDS {
 			String entreeNom = (String) entree.get("idf");
 			int entreeContext = (int) entree.get("context");
 			
-			if((entree != null) && entreeNom.equals(name) && (entreeContext == Main.currentContext))
+			if((entree != null) && entreeNom.equals(name))
+			{
+				return e.getKey();
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	public Integer find(String pname, int contexte)
+	{
+		String name = this.virerEspaces(pname);
+		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
+		Entry<Integer, HashMap<String, Object>> e;
+		HashMap<String,Object> entree;
+		
+		while(it.hasNext())
+		{
+			e = it.next();
+			entree = e.getValue();
+			String entreeNom = (String) entree.get("idf");
+			int entreeContext = (int) entree.get("context");
+			
+			if((entree != null) && entreeNom.equals(name) && (entreeContext == contexte))
 			{
 				return e.getKey();
 			}
@@ -160,7 +184,7 @@ public class TDS {
 		return this.addVar(this.virerEspaces(varname), type, 0);
 	}
 	
-	public int addParam(String varname, String type)
+	public int addParam(String varname, String type, int context)
 	{	/*
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
@@ -182,7 +206,7 @@ public class TDS {
 		int num = count;
 		entry.put("num", new Integer(count));
 		entry.put("idf", this.virerEspaces(varname));
-		entry.put("context", new Integer(Main.currentContext));
+		entry.put("context", context);
 		entry.put("categ", "param");
 		entry.put("type", type);
 		

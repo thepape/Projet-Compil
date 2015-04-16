@@ -8,7 +8,7 @@ package fr.ul.miage.exemple.generated;
 import fr.ul.miage.exemple.*;
 import fr.ul.miage.exemple.Arbre.*;
 import fr.ul.miage.exemple.TDS.*;
-import java.util.ArrayList;
+import java.util.*;
 
 
 
@@ -33,11 +33,14 @@ action code {:
 
 terminal VAR, NUM, PV, AO, AF, PO, PF, NL, EQ, OPBOOL, VRG, INT, RETURN, VOID, COM, IF, ELSE, WHILE, ADD, MUL;
 
-non terminal prog, membre_const, membre_dyn, atome_dyn, atome_const, blabla, vars, instruction, affect, defVar, defFunc, callFunc, args, defArgs, expr_dyn, expr_const, expression, conditionnelle, condition, iteration;
+non terminal prog, membre, atome, blabla, vars, instruction, affect, defVar, defFunc, callFunc, args, defArgs, expression, conditionnelle, condition, iteration;
 
 start with prog;
 
-prog ::= blabla:p {: arbre_programme.getRacine().ajouterFilsDe((Noeud) p); afficher(); :} ;
+prog ::= blabla:p {: if(p != null){ arbre_programme.getRacine().ajouterFilsDe((Noeud) p); 
+						arbre_programme.getRacine().supprimerNoeudsDef(); }  
+						afficher(); :} 
+	;
 
 blabla ::= instruction:i blabla:b {: Noeud bla = new Noeud("bla");
 									if(i != null){
@@ -67,7 +70,7 @@ blabla ::= instruction:i blabla:b {: Noeud bla = new Noeud("bla");
 								}
 								
 							}
-							else{
+							else if(i != null){
 								bla.ajouterFils(i);
 							} 
 							RESULT=bla; :}
@@ -80,7 +83,12 @@ instruction ::= defVar:dv {: RESULT=dv; :}
 	| affect:aff {: RESULT=aff; :}
 	| conditionnelle:nif {: RESULT=nif; :}
 	| iteration:ite {: RESULT=ite; :}
-	| RETURN:ret expression:ex PV
+	| RETURN:ret expression:ex PV {: Noeud r = new Noeud("RET");
+										if(ex instanceof Integer)
+											r.ajouterFils(new Noeud("CST", (Integer)ex));
+										else
+											r.ajouterFils(ex);
+										RESULT=r; :}
 	| NL
 	;
 	
@@ -103,23 +111,29 @@ iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: Noeud ite = new Noeu
 	;
 	
 condition ::= expression:ex1 OPBOOL:o expression:ex2 {: Noeud cond = new Noeud((String) o);
-														cond.ajouterFils(ex1); 
-														cond.ajouterFils(ex2); 
+														if(ex1 instanceof Integer)
+															cond.ajouterFils(new Noeud("CST", (Integer)ex1));
+														else
+															cond.ajouterFils(ex1);
+															
+														if(ex2 instanceof Integer)
+															cond.ajouterFils(new Noeud("CST", (Integer)ex2));
+														else
+															cond.ajouterFils(ex2);
 														RESULT=cond; :}
 	;
 
 
-affect ::= VAR:v EQ:eq expr_dyn:e PV {:	
+affect ::= VAR:v EQ:eq expression:e PV {:	
 												Noeud n = new Noeud("=");
 												n.ajouterFils(new Noeud("IDF", Main.tds.find((String)v)));
-												n.ajouterFils(e);
+												if(e instanceof Integer)
+													n.ajouterFils(new Noeud("CST", (Integer)e));
+												else
+													n.ajouterFils(e);
 												RESULT = n;
 										 :}
-	| VAR:v EQ:eq expr_const:e PV {: Noeud n = new Noeud("=");
-												n.ajouterFils(new Noeud("IDF", Main.tds.find((String)v)));
-												n.ajouterFils(new Noeud("CST",(int) e));
-												RESULT = n;
-										:}
+
 	;
 	
 
@@ -134,7 +148,10 @@ defVar ::= INT VAR:v vars:vs PV {: 	ArrayList<Noeud> varsN = new ArrayList<Noeud
 									  RESULT=varsN;
 									:}
 	
-	| INT:t VAR:v vars:vs EQ:eq expr_const:e PV {:	ArrayList<Noeud> varsN = new ArrayList<Noeud>();
+	| INT:t VAR:v vars:vs EQ:eq expression:e PV {:	if(!(e instanceof Integer)){
+														throw new Exception("expression de constante attendue");
+													}
+													ArrayList<Noeud> varsN = new ArrayList<Noeud>();
 													int vnum = Main.tds.addVar((String) v , "int", (int) e);
 													varsN.add(new Noeud("DEF", vnum));
 													for(String s : (ArrayList<String>)vs){
@@ -154,68 +171,141 @@ vars ::= VRG VAR:v vars:vs{: ArrayList<String> l1 = new ArrayList<String>();
 	| {:System.out.println("note/vars"); RESULT=new ArrayList<String>(); :}
 	;
 
-defFunc ::= INT VAR:fname PO defArgs PF AO blabla AF {: int num = Main.tds.addFunc((String) fname, "int");
+defFunc ::= INT VAR:fname PO defArgs:args PF AO blabla:bla AF {: if(((String) fname).toLowerCase().equals("read") || ((String) fname).toLowerCase().equals("write"))
+																	throw new Exception("La fonction "+fname+" existe deja");
+														int num = Main.tds.addFunc((String) fname, "int");
 														Noeud f = new Noeud("FUNC", num);
-														:}
-	| VOID VAR PO defArgs PF AO blabla AF
-	| INT VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, "int"); :}
-	| VOID VAR PO PF AO blabla AF
-	;
-
-callFunc ::= VAR PO args PF
-	| VAR PO PF
-	;
-
-args ::= expression VRG args
-	| expression
-	;
-	
-defArgs ::= INT VAR
-	| INT VAR VRG defArgs
-	;
-	
-expr_const ::= expr_const:e1 ADD:op membre_const:e2 {: if(((String) op).equals("+")){
-															RESULT=((int) e1 + (int) e2);
+														Stack<String> pargs = (Stack<String>) args;
+														
+														while(!pargs.empty()){
+															Main.tds.addParam(pargs.pop(), "int", num);
 														}
-														else{
-															RESULT=((int) e1 - (int) e2);
+														f.ajouterFilsDe((Noeud) bla);
+														
+														f.modifierContexteDesFils(num);
+														RESULT=f; :}
+														
+	| VOID VAR:fname PO defArgs:args PF AO blabla:bla AF {: int num = Main.tds.addFunc((String) fname, "void");
+														Noeud f = new Noeud("FUNC", num);
+														Stack<String> pargs = (Stack<String>) args;
+														
+														while(!pargs.empty()){
+															Main.tds.addParam(pargs.pop(), "int", num);
 														}
-														 :}
-	| membre_const:n {: RESULT=n; :}
+														f.ajouterFilsDe((Noeud) bla);
+														
+														f.modifierContexteDesFils(num);
+														RESULT=f;:}
+	
+	| INT VAR:fname PO PF AO blabla:bla AF {: int num = Main.tds.addFunc((String) fname, "int"); 
+												Noeud f = new Noeud("FUNC", num);
+												f.ajouterFilsDe((Noeud) bla);
+												f.modifierContexteDesFils(num); RESULT=f;:}
+												
+	| VOID VAR:fname PO PF AO blabla:bla AF {: int num = Main.tds.addFunc((String) fname, "void"); 
+									Noeud f = new Noeud("FUNC", num);
+									f.ajouterFilsDe((Noeud) bla);
+									f.modifierContexteDesFils(num); RESULT=f;:}
 	;
 
-membre_const ::= membre_const:e1 MUL:op atome_const:e2 {: if(((String) op).equals("*")){
-															RESULT=((int) e1 * (int) e2);
-														}
-														else{
-															RESULT=((int) e1 / (int) e2);
-														}
-														 :}
-	| atome_const:a {: RESULT=a; :}
+callFunc ::= VAR:v PO args:a PF {: 	Noeud callf;
+									if(((String) v).toLowerCase().equals("write")){
+										callf = new Noeud("WRITE");
+									}
+									else{
+										int numfunc = Main.tds.find((String) v, 0); 
+										//le contexte d'une fonction est toujours egal a 0
+										callf = new Noeud("CALL", numfunc);
+									}
+									Stack<Noeud> pargs = (Stack<Noeud>) a;
+									
+									while(!pargs.empty()){
+										callf.ajouterFils(pargs.pop());
+									}
+									RESULT=callf;
+									:}
+	| VAR:v PO PF {: Noeud callf;
+					if(((String) v).toLowerCase().equals("read")){
+						callf = new Noeud("READ");
+					}
+					else{
+						int numfunc = Main.tds.find((String) v, 0); 
+						//le contexte d'une fonction est toujours egal a 0
+						callf = new Noeud("CALL", numfunc); 
+					}
+					RESULT=callf;:}
+	;
+
+args ::= expression:e VRG args:a {: Stack<Noeud> pargs = (Stack<Noeud>) a;
+									pargs.push((Noeud) e);
+									RESULT=pargs; :}
+
+	| expression:e {: Stack<Noeud> pargs = new Stack<Noeud>();
+						if(e instanceof Integer)
+							pargs.push(new Noeud("CST", (Integer)e));
+						else
+							pargs.push((Noeud) e);
+						RESULT=pargs; :}
 	;
 	
-atome_const ::= NUM:n {: RESULT=n; :}
-	| PO expr_const:e PF {: RESULT=e; :}
+defArgs ::= INT VAR:v {: Stack<String> pargs = new Stack<String>();
+							pargs.push((String) v);
+							RESULT = pargs; :}
+	| INT VAR:v VRG defArgs:args {: Stack<String> pargs = (Stack<String>) args;
+									pargs.push((String) v);
+									RESULT=pargs; :}
 	;
 	
-expr_dyn ::= expr_dyn:e1 ADD:op membre_dyn:e2 {: Noeud o = new Noeud((String)op);
-													o.ajouterFils(e1); o.ajouterFils(e2);
-													RESULT=o; :}
-	| membre_dyn:n {: RESULT=n; :}
-	;
-
-membre_dyn ::= membre_dyn:e1 MUL:op atome_dyn:e2 {: Noeud o = new Noeud((String)op);
-													o.ajouterFils(e1); o.ajouterFils(e2);
-													RESULT=o; :}
-	| atome_dyn:a {: RESULT=a; :}
+expression ::= expression:e ADD:op membre:m {: if((e instanceof Integer) && (m instanceof Integer)){
+											if(((String) op).equals("+")){
+												RESULT=new Integer((int) e + (int) m);
+											}
+											else{
+												RESULT=new Integer((int) e - (int) m);
+											}
+									}
+									else{
+										Noeud o = new Noeud((String)op);
+										if(e instanceof Integer)
+											o.ajouterFils(new Noeud("CST", (Integer)e));
+										else
+											o.ajouterFils(e);
+											
+										if(m instanceof Integer)
+											o.ajouterFils(new Noeud("CST", (Integer)m));
+										else
+											o.ajouterFils(m);
+										RESULT=o;
+									} :}
+	| membre:m {: RESULT=m; :}
 	;
 	
-atome_dyn ::= VAR:v {: RESULT=new Noeud("IDF", Main.tds.find((String) v)); :}
-	| callFunc
-	| PO expr_dyn PF
+membre ::= membre:m MUL:op atome:a {: if((m instanceof Integer) && (a instanceof Integer)){
+											if(((String) op).equals("*")){
+												RESULT=new Integer((int) m * (int) a);
+											}
+											else{
+												RESULT=new Integer((int) m / (int) a);
+											}
+									}
+									else{
+										Noeud o = new Noeud((String)op);
+										if(m instanceof Integer)
+											o.ajouterFils(new Noeud("CST", (Integer)m));
+										else
+											o.ajouterFils(m);
+											
+										if(a instanceof Integer)
+											o.ajouterFils(new Noeud("CST", (Integer)a));
+										else
+											o.ajouterFils(a);
+										RESULT=o;
+									} :}
+	| atome:a {: RESULT=a; :}
 	;
 
-
-expression ::= expr_const:ec {: RESULT= new Noeud("CST", (int) ec); :}
-	| expr_dyn:ed {: RESULT = ed; :}
+atome ::= VAR:v {: RESULT=new Noeud("IDF", Main.tds.find((String) v)); :}
+	| NUM:n {: RESULT=((Integer) n); :}
+	| callFunc:cf {: RESULT=cf; :}
+	| PO expression:e PF {: RESULT=e; :}
 	;
