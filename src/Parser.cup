@@ -16,7 +16,7 @@ action code {:
    
    ArrayList<Noeud> listVar_provisoire = new ArrayList<Noeud>();
    
-   Arbre arbre_programme = new Arbre(new Noeud("Racine_Programme"));
+   Arbre arbre_programme = new Arbre(new Noeud("PROG"));
    
 	public void afficher() {
 	
@@ -37,32 +37,75 @@ non terminal prog, membre_const, membre_dyn, atome_dyn, atome_const, blabla, var
 
 start with prog;
 
-prog ::= blabla:p {: /*arbre_programme.getRacine().ajouterFils(p);*/ afficher(); :} ;
+prog ::= blabla:p {: arbre_programme.getRacine().ajouterFilsDe((Noeud) p); afficher(); :} ;
 
-blabla ::= instruction:i blabla {: if(i != null){ arbre_programme.getRacine().empilerFils(i); }  :}
-		| COM blabla
-		| instruction:i {: arbre_programme.getRacine().empilerFils(i); :}
+blabla ::= instruction:i blabla:b {: Noeud bla = new Noeud("bla");
+									if(i != null){
+										if(i instanceof ArrayList<?>){
+											ArrayList<Noeud> l = (ArrayList<Noeud>) i;
+											
+											for(Noeud n : l){
+												bla.ajouterFils(n);
+											}
+											
+										}
+										else{
+											bla.ajouterFils(i);
+										}
+									}  
+									if(b != null)
+										bla.ajouterFilsDe((Noeud) b);
+									RESULT=bla;
+									:}
+		| COM blabla:b {: RESULT=b; :}
+		| instruction:i {: 	Noeud bla = new Noeud("bla");
+							if(i instanceof ArrayList<?>){
+								ArrayList<Noeud> l = (ArrayList<Noeud>) i;
+								
+								for(Noeud n : l){
+									bla.ajouterFils(n);
+								}
+								
+							}
+							else{
+								bla.ajouterFils(i);
+							} 
+							RESULT=bla; :}
 		| COM
 	;
 
-instruction ::= defVar:dv {: :}
-	| defFunc:df {:  :}
-	| callFunc:cf PV
+instruction ::= defVar:dv {: RESULT=dv; :}
+	| defFunc:df {: RESULT=df; :}
+	| callFunc:cf PV {: RESULT=cf; :}
 	| affect:aff {: RESULT=aff; :}
-	| conditionnelle:nif
-	| iteration:ite
+	| conditionnelle:nif {: RESULT=nif; :}
+	| iteration:ite {: RESULT=ite; :}
 	| RETURN:ret expression:ex PV
 	| NL
 	;
 	
-conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: ((Noeud) i).ajouterFils(c); ((Noeud) i).ajouterFils(bla); RESULT=i;  :}
-	| IF:i PO condition:c PF AO blabla:th AF ELSE AO blabla:el AF {: ((Noeud) i).ajouterFils(c); ((Noeud) i).ajouterFils(th); ((Noeud) i).ajouterFils(el); RESULT=i; :}
+conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: 	Noeud nif = new Noeud("IF");
+																nif.ajouterFils(c); 
+																nif.ajouterFils(bla); 
+																RESULT=nif;  :}
+	| IF:i PO condition:c PF AO blabla:th AF ELSE AO blabla:el AF {: 
+																Noeud nif = new Noeud("IF");
+																nif.ajouterFils(c); 
+																nif.ajouterFils(th); 
+																nif.ajouterFils(el); 
+																RESULT=nif; :}
 	;
 	
-iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: ((Noeud) w).ajouterFils(c); ((Noeud) w).ajouterFils(bla); RESULT=w; :}
+iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: Noeud ite = new Noeud("WHILE");
+															ite.ajouterFils(c); 
+															ite.ajouterFils(bla); 
+															RESULT=ite; :}
 	;
 	
-condition ::= expression:ex1 OPBOOL:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
+condition ::= expression:ex1 OPBOOL:o expression:ex2 {: Noeud cond = new Noeud((String) o);
+														cond.ajouterFils(ex1); 
+														cond.ajouterFils(ex2); 
+														RESULT=cond; :}
 	;
 
 
@@ -81,16 +124,24 @@ affect ::= VAR:v EQ:eq expr_dyn:e PV {:
 	
 
 
-defVar ::= INT VAR:v vars:vs PV {: Main.tds.addVar((String) v, "int", 0);
+defVar ::= INT VAR:v vars:vs PV {: 	ArrayList<Noeud> varsN = new ArrayList<Noeud>();
+										int vnum = Main.tds.addVar((String) v, "int", 0);
+										varsN.add(new Noeud("DEF", vnum));
 									  for(String s : (ArrayList<String>)vs){
-											Main.tds.addVar((String) s, "int", 0);
+											vnum = Main.tds.addVar((String) s, "int", 0);
+											varsN.add(new Noeud("DEF", vnum));
 									  }  
+									  RESULT=varsN;
 									:}
 	
-	| INT:t VAR:v vars:vs EQ:eq expr_const:e PV {:Main.tds.addVar((String) v , "int", (int) e);
+	| INT:t VAR:v vars:vs EQ:eq expr_const:e PV {:	ArrayList<Noeud> varsN = new ArrayList<Noeud>();
+													int vnum = Main.tds.addVar((String) v , "int", (int) e);
+													varsN.add(new Noeud("DEF", vnum));
 													for(String s : (ArrayList<String>)vs){
-														Main.tds.addVar((String) s , "int", (int) e);
+														vnum = Main.tds.addVar((String) s , "int", (int) e);
+														varsN.add(new Noeud("DEF", vnum));
 									  				}
+									  				RESULT=varsN;
 										 		:}
 	;
 	
@@ -103,19 +154,13 @@ vars ::= VRG VAR:v vars:vs{: ArrayList<String> l1 = new ArrayList<String>();
 	| {:System.out.println("note/vars"); RESULT=new ArrayList<String>(); :}
 	;
 
-defFunc ::= INT VAR:fname PO defArgs PF AO blabla AF 
+defFunc ::= INT VAR:fname PO defArgs PF AO blabla AF {: int num = Main.tds.addFunc((String) fname, "int");
+														Noeud f = new Noeud("FUNC", num);
+														:}
 	| VOID VAR PO defArgs PF AO blabla AF
 	| INT VAR:fname PO PF AO blabla:bla AF {: Main.tds.addFunc((String) fname, "int"); :}
 	| VOID VAR PO PF AO blabla AF
 	;
-	
-/*
-defFunc ::= INT PO defArgs PF AO blabla RETURN expression PV blabla AF
-	| VOID VAR PO defArgs PF AO blabla AF
-	| INT VAR PO PF AO blabla RETURN expression PV blabla AF
-	| VOID VAR PO PF AO blabla AF
-	;
-*/
 
 callFunc ::= VAR PO args PF
 	| VAR PO PF
@@ -170,14 +215,7 @@ atome_dyn ::= VAR:v {: RESULT=new Noeud("IDF", Main.tds.find((String) v)); :}
 	| PO expr_dyn PF
 	;
 
-/*
-expression ::= NUM:n OP:o expression:ex {: ((Noeud) o).ajouterFils(n); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
-	| VAR:v OP:o expression:ex {: ((Noeud) o).ajouterFils(v); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
-	| callFunc:f OP:o expression:ex {: ((Noeud) o).ajouterFils(f); ((Noeud) o).ajouterFils(ex); RESULT=o; :}
-	| NUM:n {: RESULT=n; :}
-	| VAR:v {: RESULT=(Noeud)v; :}
-	| callFunc:f {: RESULT=f; :}
-	| PO expression:ex1 PF OP:o expression:ex2 {: ((Noeud) o).ajouterFils(ex1); ((Noeud) o).ajouterFils(ex2); RESULT=o; :}
-	| PO expression:ex PF {: RESULT=ex; :}
+
+expression ::= expr_const:ec {: RESULT= new Noeud("CST", (int) ec); :}
+	| expr_dyn:ed {: RESULT = ed; :}
 	;
-	*/
