@@ -1,0 +1,8 @@
+/*
+ * Test de contrôle sémantique n°2
+ */
+ 
+ void main(){
+	i = 0; /* erreur : variable non définie */
+ }
+ 

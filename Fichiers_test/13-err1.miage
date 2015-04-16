@@ -1,0 +1,19 @@
+/*
+ * Test d'erreur syntaxique
+ */
+ 
+ int i, j = 0;
+ 
+ int f(int a, int b){
+	int x;
+	
+	x=(a*2)+b-5/3 /*erreur ; attendu */
+	
+	return x+2;
+ }
+ 
+ void main(){
+	 j = read();
+	 write(f(i+1,j));
+ }
+ 

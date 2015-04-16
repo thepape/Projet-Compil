@@ -1,0 +1,16 @@
+/*
+ * Test génération de code : 
+ * recursivité
+ */
+int x ;
+
+int f(int n){
+	if (n>0){
+		return 0;
+	}
+	return (n+f(n-1));
+}
+
+void main(){
+	x = f(5);
+}

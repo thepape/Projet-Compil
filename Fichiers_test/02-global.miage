@@ -1,0 +1,13 @@
+/*
+ * Test génération de code : variables globales
+ */
+ 
+ int i = 0;
+ int j, k;
+ 
+ void main(){
+	k = 1;
+	j = k;
+	k = i;
+ }
+ 

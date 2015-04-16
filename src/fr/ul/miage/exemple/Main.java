@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import fr.ul.miage.exemple.Arbre.Noeud;
@@ -66,28 +67,62 @@ public class Main {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
+		
+		
+		
+		
+		//analyseFichier(new File("exemple.miage"));
+		
+		
+		
+		String path = "Fichiers_test";
+		
+		File[] files = new File(path).listFiles();
+				
+		for (File file : files) {
+			
+			if(!(file.getName().equals(".DS_Store"))) {
+				
+				count = 1;
+				racine = new Noeud("PROG");
+				currentContext=0;
+				tds = new TDS();
+				currentLine=1;
+				
+				System.out.println("Analyse : "+file.getName());
+				analyseFichier(file);
+			}
+		}
+		
+
+}
+
+
+	public static void analyseFichier(File file){
+		
 		ParserCup parser;
 
 		
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(new File("exemple.miage"));
-				parser = new ParserCup(new Yylex(fis));
-			} catch (FileNotFoundException e) {
-				System.out.println("Fichier non trouvé ou illisible.");
-				System.out.println("Entrez la chaine à analyser : ");
-				parser = new ParserCup(new Yylex(System.in));
-			}
-			
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			parser = new ParserCup(new Yylex(fis));
+		} catch (FileNotFoundException e) {
+			System.out.println("Fichier non trouvé ou illisible.");
+			System.out.println("Entrez la chaine à analyser : ");
+			parser = new ParserCup(new Yylex(System.in));
+		}
 		
-			
+	
 		
+	
 		try {
 			parser.parse();
 			System.out.println("Fichier correctement analysé");
-			
+		
 			tds.affiche();
 			//System.out.println("test : "+tds.toString());
 
@@ -96,6 +131,8 @@ public class Main {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	}
 
+	
+	}
 }
+

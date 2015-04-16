@@ -1,0 +1,15 @@
+/*
+ * Test de contrôle sémantique n°4
+ */
+ 
+ int i;
+ 
+ void f(int a, int b){
+	int x;
+	x=0;
+ }
+ 
+ void main(){
+	f(i); /* erreur : nombre de paramètres */
+ }
+ 

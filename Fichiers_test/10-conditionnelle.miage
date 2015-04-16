@@ -1,0 +1,14 @@
+/*
+ * Test génération de code : 
+ * conditionnelle
+ */
+
+int i = 3; int j;
+void main(){
+	if (i < 2){
+		j = 0;
+	}else{
+		j = 1;
+	}
+ }
+

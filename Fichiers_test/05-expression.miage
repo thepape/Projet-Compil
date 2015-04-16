@@ -1,0 +1,12 @@
+/*
+ * Test d'une expression arithméthique
+ */
+ 
+ int x;
+ int a = 1;
+ int b = 2;
+  
+ void main(){
+	x=(a*2)+b-5/3;
+ }
+ 

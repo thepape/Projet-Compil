@@ -1,0 +1,17 @@
+/*
+ * Test génération de code : 
+ * adressage de variable locale, paramËtre et resultat
+ */
+
+int i = 0;
+int j;
+
+int f(int a){
+	int x;
+	x = a+1;
+	return x;
+ }
+
+void main(){
+	j = f(i);
+}

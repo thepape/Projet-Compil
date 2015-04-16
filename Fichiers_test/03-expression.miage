@@ -1,0 +1,10 @@
+/*
+ * Test génération de code : une expression simple
+ */
+
+int i;
+int j = 1;
+
+void main(){
+	i = 6+j/3; /*tester ceci*/
+}

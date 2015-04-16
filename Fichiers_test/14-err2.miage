@@ -1,0 +1,11 @@
+/*
+ * Test de contrôle sémantique n°1
+ */
+ 
+ int i;
+ int i; /* erreur : double définition */
+ 
+ void main(){
+	i = 0;
+ }
+ 

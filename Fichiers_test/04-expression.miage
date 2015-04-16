@@ -1,0 +1,11 @@
+/*
+ * Test d'une expression arithmétique
+ */
+ 
+int i, j;
+main(){
+	i=0;
+	j = (2+i) - (3+i);
+}
+
+ 
