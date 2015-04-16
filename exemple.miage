@@ -1,10 +1,15 @@
 /*
- * Test de contrôle sémantique n°2
+ * Test de contrôle sémantique n°4
  */
-
- int i=0;
+ 
+ int i;
+ 
+ void f(int a, int b){
+	int x;
+	x=0;
+ }
+ 
  void main(){
-
-	i = 0; /* erreur : variable non définie */
+	f(i); /* erreur : nombre de paramètres */
  }
  

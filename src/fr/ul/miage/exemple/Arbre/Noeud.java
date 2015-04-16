@@ -125,6 +125,44 @@ public class Noeud {
 		}
 	}
 	
+	public void verifierConflitsType(boolean necessiteRetour) throws Exception
+	{
+		boolean needReturn = necessiteRetour;
+		
+		if(needReturn == false)
+		{
+			needReturn = (this.type.equals("CALL")
+						|| this.type.equals("RET")
+						|| this.type.equals("=")
+						|| this.type.equals("==")
+						|| this.type.equals("<")
+						|| this.type.equals(">")
+						|| this.type.equals("<=")
+						|| this.type.equals(">=")
+						|| this.type.equals("!=")
+						|| this.type.equals("+")
+						|| this.type.equals("-")
+						|| this.type.equals("*")
+						|| this.type.equals("/"));
+		}
+		
+		for(Noeud f : this.fils)
+		{
+			if(f.type.equals("CALL"))
+			{
+				if(Main.tds.get(f.valeur, "type").equals("void") && needReturn)
+				{
+					String fname = (String) Main.tds.get(f.valeur, "idf");
+					throw new Exception("Impossible de lire la valeur de retour de "+fname+" car elle est de type void");
+				}
+			}
+			else if(f.fils.size() > 0)
+			{
+				f.verifierConflitsType(needReturn);;
+			}
+		}
+	}
+	
 	public void corrigerIDFnulls(int contexte) throws Exception
 	{
 		int cxt = contexte;
