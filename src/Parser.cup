@@ -66,20 +66,8 @@ blabla ::= instruction:i blabla:b {: Noeud bla = new Noeud("bla");
 									RESULT=bla;
 									:}
 		| COM blabla:b {: RESULT=b; :}
-		| instruction:i {: 	Noeud bla = new Noeud("bla");
-							if(i instanceof ArrayList<?>){
-								ArrayList<Noeud> l = (ArrayList<Noeud>) i;
-								
-								for(Noeud n : l){
-									bla.ajouterFils(n);
-								}
-								
-							}
-							else if(i != null){
-								bla.ajouterFils(i);
-							} 
-							RESULT=bla; :}
-		| COM
+		
+		| {: :}
 	;
 
 instruction ::= defVar:dv {: RESULT=dv; :}
@@ -99,19 +87,27 @@ instruction ::= defVar:dv {: RESULT=dv; :}
 	
 conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: 	Noeud nif = new Noeud("IF");
 																nif.ajouterFils(c); 
-																nif.ajouterFils(bla); 
+																Noeud nthen = new Noeud("THEN");
+																nthen.ajouterFilsDe((Noeud) bla);
+																nif.ajouterFils(nthen); 
 																RESULT=nif;  :}
 	| IF:i PO condition:c PF AO blabla:th AF ELSE AO blabla:el AF {: 
 																Noeud nif = new Noeud("IF");
 																nif.ajouterFils(c); 
-																nif.ajouterFils(th); 
-																nif.ajouterFils(el); 
+																Noeud nthen = new Noeud("THEN");
+																nthen.ajouterFilsDe((Noeud) th);
+																Noeud nelse = new Noeud("ELSE");
+																nelse.ajouterFilsDe((Noeud) el);
+																nif.ajouterFils(nthen); 
+																nif.ajouterFils(nelse); 
 																RESULT=nif; :}
 	;
 	
 iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: Noeud ite = new Noeud("WHILE");
 															ite.ajouterFils(c); 
-															ite.ajouterFils(bla); 
+															Noeud ndo = new Noeud("DO");
+															ndo.ajouterFilsDe((Noeud) bla);
+															ite.ajouterFils(ndo); 
 															RESULT=ite; :}
 	;
 	
@@ -187,7 +183,8 @@ defFunc ::= INT VAR:fname PO defArgs:args PF AO blabla:bla AF {: if(((String) fn
 														while(!pargs.empty()){
 															Main.tds.addParam(pargs.pop(), "int", num);
 														}
-														f.ajouterFilsDe((Noeud) bla);
+														if(bla != null)
+															f.ajouterFilsDe((Noeud) bla);
 														
 														f.modifierContexteDesFils(num);
 														RESULT=f; :}
@@ -199,19 +196,22 @@ defFunc ::= INT VAR:fname PO defArgs:args PF AO blabla:bla AF {: if(((String) fn
 														while(!pargs.empty()){
 															Main.tds.addParam(pargs.pop(), "int", num);
 														}
-														f.ajouterFilsDe((Noeud) bla);
+														if(bla != null)
+															f.ajouterFilsDe((Noeud) bla);
 														
 														f.modifierContexteDesFils(num);
 														RESULT=f;:}
 	
 	| INT VAR:fname PO PF AO blabla:bla AF {: int num = Main.tds.addFunc((String) fname, "int"); 
 												Noeud f = new Noeud("FUNC", num);
-												f.ajouterFilsDe((Noeud) bla);
+												if(bla != null)
+													f.ajouterFilsDe((Noeud) bla);
 												f.modifierContexteDesFils(num); RESULT=f;:}
 												
 	| VOID VAR:fname PO PF AO blabla:bla AF {: int num = Main.tds.addFunc((String) fname, "void"); 
 									Noeud f = new Noeud("FUNC", num);
-									f.ajouterFilsDe((Noeud) bla);
+									if(bla != null)
+										f.ajouterFilsDe((Noeud) bla);
 									f.modifierContexteDesFils(num); RESULT=f;:}
 	;
 
