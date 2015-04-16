@@ -1,6 +1,6 @@
 /*
- * Test génération de code : 
- * adressage de variable locale, paramËtre et resultat
+ * Test gÃ©nÃ©ration de code : 
+ * adressage de variable locale, paramÃ¨tre et resultat
  */
 
 int i = 0;

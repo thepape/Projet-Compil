@@ -19,13 +19,15 @@ public class TDS {
 	
 	private String virerEspaces(String s)
 	{
+		System.out.println("varname : '"+s+"'");
+
 		String res = s;
 		
 		if(s.contains(" "))
 		{
 			res = s.replaceAll(" ", "");
 		}
-		
+		System.out.println("res : '"+res+"'");
 		return res;
 	}
 	

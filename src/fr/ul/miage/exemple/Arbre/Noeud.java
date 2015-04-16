@@ -36,15 +36,7 @@ public class Noeud {
 	
 	public void empilerFils(Noeud n)
 	{
-		ArrayList<Noeud> newFils = new ArrayList<Noeud>();
-		newFils.add(n);
-		
-		for(Noeud f : this.fils)
-		{
-			newFils.add(f);
-		}
-		
-		this.fils = newFils;
+		fils.add(0, n);
 	}
 	
 	public void supprimerFils(Noeud nas)
