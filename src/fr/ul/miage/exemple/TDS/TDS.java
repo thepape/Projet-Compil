@@ -85,6 +85,35 @@ public class TDS {
 		return null;
 	}
 	
+	public void verifierDoublesDefinitions() throws Exception
+	{
+		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
+		Entry<Integer, HashMap<String, Object>> e;
+		HashMap<String,Object> entree;
+		
+		HashMap<String, Integer> count = new HashMap<String, Integer>();
+		String idf;
+		int context;
+		
+		while(it.hasNext())
+		{
+			e = it.next();
+			entree = e.getValue();
+			
+			idf = (String) entree.get("idf");
+			context = (Integer) entree.get("context");
+			
+			if(count.containsKey(idf+":"+context))
+			{
+				throw new Exception("La variable "+idf+" a deja ete declaree dans le contexte "+context);
+			}
+			else
+			{
+				count.put(idf+":"+context, 1);
+			}
+		}
+	}
+	
 	public Object get(Integer num, String col)
 	{
 		String colonne = this.virerEspaces(col);

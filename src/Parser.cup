@@ -41,6 +41,8 @@ prog ::= blabla:p {: if(p != null){ arbre_programme.getRacine().ajouterFilsDe((N
 						arbre_programme.getRacine().supprimerNoeudsDef(); 
 						arbre_programme.getRacine().corrigerNoeudsCall();
 						arbre_programme.getRacine().corrigerIDFnulls(0);
+						Main.tds.verifierDoublesDefinitions();
+						arbre_programme.getRacine().verifierConflitsCallVoid(false);
 						}  
 						afficher(); :} 
 	;
@@ -97,19 +99,27 @@ instruction ::= defVar:dv {: RESULT=dv; :}
 	
 conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: 	Noeud nif = new Noeud("IF");
 																nif.ajouterFils(c); 
-																nif.ajouterFils(bla); 
+																Noeud nthen = new Noeud("THEN");
+																nthen.ajouterFilsDe((Noeud) bla);
+																nif.ajouterFils(nthen); 
 																RESULT=nif;  :}
 	| IF:i PO condition:c PF AO blabla:th AF ELSE AO blabla:el AF {: 
 																Noeud nif = new Noeud("IF");
 																nif.ajouterFils(c); 
-																nif.ajouterFils(th); 
-																nif.ajouterFils(el); 
+																Noeud nthen = new Noeud("THEN");
+																nthen.ajouterFilsDe((Noeud) th);
+																Noeud nelse = new Noeud("ELSE");
+																nelse.ajouterFilsDe((Noeud) el);
+																nif.ajouterFils(nthen); 
+																nif.ajouterFils(nelse); 
 																RESULT=nif; :}
 	;
 	
 iteration ::= WHILE:w PO condition:c PF AO blabla:bla AF {: Noeud ite = new Noeud("WHILE");
 															ite.ajouterFils(c); 
-															ite.ajouterFils(bla); 
+															Noeud ndo = new Noeud("DO");
+															ndo.ajouterFilsDe((Noeud) bla);
+															ite.ajouterFils(ndo); 
 															RESULT=ite; :}
 	;
 	

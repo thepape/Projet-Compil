@@ -108,15 +108,23 @@ public class Noeud {
 		return(this.id == n.id);
 	}
 	
-	public void corrigerNoeudsCall()
+	public void corrigerNoeudsCall() throws Exception
 	{
 		for(Noeud f : this.fils)
 		{
-			if(f.type.equals("CALL") && (f.valeur == null))
+			if(f.type.equals("CALL"))
 			{
 				String funcName = f.tag;
 				int fnum = Main.tds.find(funcName);
-				f.valeur = fnum;
+				
+				if(f.valeur == null)
+					f.valeur = fnum;
+				
+				int nbparam = (int) Main.tds.get(fnum, "nbparam");
+				if(f.fils.size() != nbparam)
+				{
+					throw new Exception("La fonction "+funcName+" requiert "+nbparam+" parametres");
+				}
 			}
 			else if(f.fils.size() > 0)
 			{
@@ -125,7 +133,7 @@ public class Noeud {
 		}
 	}
 	
-	public void corrigerIDFnulls(int contexte)
+	public void corrigerIDFnulls(int contexte) throws Exception
 	{
 		int cxt = contexte;
 		
@@ -139,12 +147,55 @@ public class Noeud {
 			if(f.type.equals("IDF") && (f.valeur == null))
 			{
 				String idfName = f.tag;
-				int fnum = Main.tds.find(idfName, cxt);
+				Integer fnum = Main.tds.find(idfName, cxt);
+				
+				if(fnum == null)
+					throw new Exception("la variable "+idfName+" n'a jamais ete initialisee dans ce contexte");
 				f.valeur = fnum;
 			}
 			else if(f.fils.size() > 0)
 			{
 				f.corrigerIDFnulls(cxt);
+			}
+		}
+	}
+	
+	
+	
+	public void verifierConflitsCallVoid(boolean necessiteRetour) throws Exception
+	{
+		boolean needReturn = necessiteRetour;
+		
+		if(needReturn == false)
+		{
+			needReturn = (this.type.equals("CALL") 
+				|| this.type.equals("RET")
+				|| this.type.equals("<")
+				|| this.type.equals(">")
+				|| this.type.equals("<=")
+				|| this.type.equals(">=")
+				|| this.type.equals("=")
+				|| this.type.equals("==")
+				|| this.type.equals("!=")
+				|| this.type.equals("+")
+				|| this.type.equals("-")
+				|| this.type.equals("*")
+				|| this.type.equals("/")
+				);
+		}
+		
+		for(Noeud f : this.fils)
+		{
+			if(f.type.equals("CALL"))
+			{
+				if(Main.tds.get(f.valeur, "type").equals("void") && needReturn)
+				{
+					throw new Exception("conflit de type void");
+				}
+			}
+			else if(f.fils.size() > 0)
+			{
+				f.verifierConflitsCallVoid(needReturn);
 			}
 		}
 	}
