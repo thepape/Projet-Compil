@@ -1,11 +1,12 @@
 /*
- * Test d'une expression arithmÈtique
+ * Test génération de code : 
+ * adressage de variable locale, paramËtre et resultat
  */
- 
-int i, j;
-void main(){
-	i=0;
-	j = (2+i) - (3+i);
-}
 
- 
+
+void main(){
+	
+	void main2() {
+	}
+	
+}

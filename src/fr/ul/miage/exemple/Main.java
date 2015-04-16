@@ -74,7 +74,7 @@ public class Main {
 		
 		
 		
-		//analyseFichier(new File("exemple.miage"));
+		analyseFichier(new File("exemple.miage"));
 		
 		
 		
@@ -94,7 +94,7 @@ public class Main {
 				
 				System.out.println("\n\nAnalyse : "+file.getName());
 				
-					analyseFichier(file);
+					//analyseFichier(file);
 				
 			}
 		}

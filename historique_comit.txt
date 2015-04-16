@@ -1,4 +1,22 @@
-﻿//RP - 16 avril
+Problèmes à résoudre :
+	- Une fonction peut être déclarer dans une autre fonction
+
+
+
+
+
+
+
+
+//J - 16 avril
+
+- main analyse tous les fichiers tests et passe à un autre test s’il rencontre une erreur
+
+
+
+
+
+//RP - 16 avril
 
 
 
