@@ -9,6 +9,7 @@ public class Noeud {
 	public int id;
 	public String type;
 	public Integer valeur;
+	public String tag = null;
 	public ArrayList<Noeud> fils;
 	public Noeud pere;
 	
@@ -65,6 +66,7 @@ public class Noeud {
 	public void ajouterFils(Noeud n)
 	{
 		this.fils.add(n);
+		n.pere = this;
 	}
 	
 	public void ajouterFils(Object n)
@@ -104,6 +106,47 @@ public class Noeud {
 	public boolean equals(Noeud n)
 	{
 		return(this.id == n.id);
+	}
+	
+	public void corrigerNoeudsCall()
+	{
+		for(Noeud f : this.fils)
+		{
+			if(f.type.equals("CALL") && (f.valeur == null))
+			{
+				String funcName = f.tag;
+				int fnum = Main.tds.find(funcName);
+				f.valeur = fnum;
+			}
+			else if(f.fils.size() > 0)
+			{
+				f.corrigerNoeudsCall();
+			}
+		}
+	}
+	
+	public void corrigerIDFnulls(int contexte)
+	{
+		int cxt = contexte;
+		
+		if(this.type.equals("FUNC"))
+		{
+			cxt = this.valeur;
+		}
+				
+		for(Noeud f : this.fils)
+		{
+			if(f.type.equals("IDF") && (f.valeur == null))
+			{
+				String idfName = f.tag;
+				int fnum = Main.tds.find(idfName, cxt);
+				f.valeur = fnum;
+			}
+			else if(f.fils.size() > 0)
+			{
+				f.corrigerIDFnulls(cxt);
+			}
+		}
 	}
 	
 	public void modifierContexteDesFils(int contexte) throws Exception

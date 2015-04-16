@@ -38,7 +38,10 @@ non terminal prog, membre, atome, blabla, vars, instruction, affect, defVar, def
 start with prog;
 
 prog ::= blabla:p {: if(p != null){ arbre_programme.getRacine().ajouterFilsDe((Noeud) p); 
-						arbre_programme.getRacine().supprimerNoeudsDef(); }  
+						arbre_programme.getRacine().supprimerNoeudsDef(); 
+						arbre_programme.getRacine().corrigerNoeudsCall();
+						arbre_programme.getRacine().corrigerIDFnulls(0);
+						}  
 						afficher(); :} 
 	;
 
@@ -89,7 +92,7 @@ instruction ::= defVar:dv {: RESULT=dv; :}
 										else
 											r.ajouterFils(ex);
 										RESULT=r; :}
-	| NL
+	| NL {: Main.currentLine++; :}
 	;
 	
 conditionnelle ::= IF:i PO condition:c PF AO blabla:bla AF {: 	Noeud nif = new Noeud("IF");
@@ -126,7 +129,9 @@ condition ::= expression:ex1 OPBOOL:o expression:ex2 {: Noeud cond = new Noeud((
 
 affect ::= VAR:v EQ:eq expression:e PV {:	
 												Noeud n = new Noeud("=");
-												n.ajouterFils(new Noeud("IDF", Main.tds.find((String)v)));
+												Noeud var = new Noeud("IDF", Main.tds.find((String)v));
+												var.tag = (String) v;
+												n.ajouterFils(var);
 												if(e instanceof Integer)
 													n.ajouterFils(new Noeud("CST", (Integer)e));
 												else
@@ -213,9 +218,10 @@ callFunc ::= VAR:v PO args:a PF {: 	Noeud callf;
 										callf = new Noeud("WRITE");
 									}
 									else{
-										int numfunc = Main.tds.find((String) v, 0); 
+										Integer numfunc = Main.tds.find((String) v, 0); 
 										//le contexte d'une fonction est toujours egal a 0
 										callf = new Noeud("CALL", numfunc);
+										callf.tag = (String) v;
 									}
 									Stack<Noeud> pargs = (Stack<Noeud>) a;
 									
@@ -229,9 +235,10 @@ callFunc ::= VAR:v PO args:a PF {: 	Noeud callf;
 						callf = new Noeud("READ");
 					}
 					else{
-						int numfunc = Main.tds.find((String) v, 0); 
+						Integer numfunc = Main.tds.find((String) v, 0); 
 						//le contexte d'une fonction est toujours egal a 0
 						callf = new Noeud("CALL", numfunc); 
+						callf.tag= (String) v;
 					}
 					RESULT=callf;:}
 	;
@@ -304,7 +311,7 @@ membre ::= membre:m MUL:op atome:a {: if((m instanceof Integer) && (a instanceof
 	| atome:a {: RESULT=a; :}
 	;
 
-atome ::= VAR:v {: RESULT=new Noeud("IDF", Main.tds.find((String) v)); :}
+atome ::= VAR:v {: Noeud var=new Noeud("IDF", Main.tds.find((String) v)); var.tag = (String) v; RESULT=var; :}
 	| NUM:n {: RESULT=((Integer) n); :}
 	| callFunc:cf {: RESULT=cf; :}
 	| PO expression:e PF {: RESULT=e; :}

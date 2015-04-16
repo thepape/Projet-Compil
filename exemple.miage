@@ -1,10 +1,17 @@
-int i, j = 2+1;
-int k = 7; 
-i = 9;
-k =8;
+/*
+ * Test génération de code : 
+ * adressage de variable locale, paramËtre et resultat
+ */
 
-int f( int a, int b){
-	int k = 9;
-	i=k+j;
-	return k*i+2;
+int i = 0;
+int j;
+
+int f(int a){
+	int x;
+	x = a+1;
+	return x;
+ }
+
+void main(){
+	j = f(i);
 }

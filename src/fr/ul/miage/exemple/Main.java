@@ -27,6 +27,7 @@ public class Main {
 	public static Noeud racine = new Noeud("PROG");
 	public static int currentContext=0;
 	public static TDS tds = new TDS();
+	public static int currentLine=1;
 	
 	public static String virerEspaces(String s)
 	{
@@ -91,7 +92,7 @@ public class Main {
 			//System.out.println("test : "+tds.toString());
 
 		} catch (Exception e) {
-			System.err.println("...Erreur de syntaxe ");
+			System.err.println("...Erreur de syntaxe a la ligne "+Main.currentLine+" (un bloc commentaire compte pour 1 seule ligne)");
 			e.printStackTrace();
 			System.exit(1);
 		}

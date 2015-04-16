@@ -60,6 +60,9 @@ public class TDS {
 	
 	public Integer find(String pname, int contexte)
 	{
+		if(pname == null)
+			return null;
+		
 		String name = this.virerEspaces(pname);
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
@@ -82,11 +85,11 @@ public class TDS {
 		return null;
 	}
 	
-	public Object get(int num, String col)
+	public Object get(Integer num, String col)
 	{
 		String colonne = this.virerEspaces(col);
 		
-		if(num > 0 && num <= this.table.size())
+		if(num != null && num > 0 && num <= this.table.size())
 			return this.table.get(num).get(colonne);
 		else
 			return null;
