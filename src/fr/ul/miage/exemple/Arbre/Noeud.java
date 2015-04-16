@@ -108,15 +108,21 @@ public class Noeud {
 		return(this.id == n.id);
 	}
 	
-	public void corrigerNoeudsCall()
+	public void corrigerNoeudsCall() throws Exception
 	{
 		for(Noeud f : this.fils)
 		{
-			if(f.type.equals("CALL") && (f.valeur == null))
+			if(f.type.equals("CALL"))
 			{
 				String funcName = f.tag;
 				int fnum = Main.tds.find(funcName);
-				f.valeur = fnum;
+				
+				if(f.valeur == null)
+					f.valeur = fnum;
+				
+				int nbparam = (Integer) Main.tds.get(fnum, "nbparam");
+				if(nbparam != f.fils.size())
+					throw new Exception("La fonction "+funcName+" requiert "+nbparam+" parametres");
 			}
 			else if(f.fils.size() > 0)
 			{
