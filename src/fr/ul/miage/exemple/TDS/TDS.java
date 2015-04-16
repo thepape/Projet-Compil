@@ -69,22 +69,31 @@ public class TDS {
 		
 	}
 	
+	public void set(int num, String col, Object value)
+	{
+		String colonne = this.virerEspaces(col);
+		
+		if(num > 0 && num <= this.table.size())
+			this.table.get(num).put(colonne, value);
+		
+	}
 	
-	public boolean addVar(String varname, String type, String value) {
-
+	
+	public int addVar(String varname, String type, String value) {
+		int res = -1;
 		try {
 			 int x = Integer.parseInt(value);
-			 addVar( varname, type, x);
+			 res = addVar( varname, type, x);
 			 
 		} catch(Exception e) {
-			return false;
+			return -1;
 		}
-		return true;
+		return res;
 	}
 
 	
 	
-	
+	/*
 	public void addVars(String[] varnames, String type, String value)
 	{
 		for(int i = 0; i < varnames.length; i++)
@@ -93,14 +102,14 @@ public class TDS {
 		}
 	}
 	
+	*/
 	
 	
 	
-	
-	public boolean addVar(String varname, String type, int value)
+	public int addVar(String varname, String type, int value)
 	{
 		System.out.println("On ajoute "+varname+" avec val = "+value);
-
+		/*
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
 		HashMap<String,Object> hm;
@@ -112,12 +121,13 @@ public class TDS {
 			
 			if(hm != null && hm.get("idf").equals(this.virerEspaces(varname)) && (Integer) hm.get("context") == Main.currentContext)
 			{
-				return false;
+				return -1;
 			}
 			
-		}
+		}*/
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
+		int num = count;
 		entry.put("num", new Integer(count));
 		entry.put("idf", this.virerEspaces(varname));
 		entry.put("context", new Integer(Main.currentContext));
@@ -134,24 +144,24 @@ public class TDS {
 		
 		this.table.put(count++, entry);
 		
-		return true;
+		return num;
 	}
-	
+	/*
 	public void addVars(String[] varnames, String type, int value)
 	{
 		for(int i = 0; i < varnames.length; i++)
 		{
 			this.addVar(varnames[i], type, value);
 		}
-	}
+	}*/
 	
-	public boolean addVar(String varname, String type)
+	public int addVar(String varname, String type)
 	{
 		return this.addVar(this.virerEspaces(varname), type, 0);
 	}
 	
-	public boolean addParam(String varname, String type)
-	{
+	public int addParam(String varname, String type)
+	{	/*
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
 		HashMap<String,Object> hm;
@@ -167,9 +177,10 @@ public class TDS {
 			}
 			
 		}
-		
+		*/
 		HashMap<String,Object> entry = new HashMap<String,Object>();
-		entry.put("num", new Integer(count++));
+		int num = count;
+		entry.put("num", new Integer(count));
 		entry.put("idf", this.virerEspaces(varname));
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "param");
@@ -181,11 +192,12 @@ public class TDS {
 		
 		this.table.put(count++, entry);
 		
-		return true;
+		return num;
 	}
 	
-	public boolean addFunc(String funcname, String type)
+	public int addFunc(String funcname, String type)
 	{
+		/*
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
 		Entry<Integer, HashMap<String, Object>> e;
 		HashMap<String,Object> hm;
@@ -200,10 +212,11 @@ public class TDS {
 				return false;
 			}
 			
-		}
+		}*/
 		
 		HashMap<String,Object> entry = new HashMap<String,Object>();
-		entry.put("num", new Integer(count++));
+		int num = count;
+		entry.put("num", new Integer(count));
 		entry.put("idf", this.virerEspaces(funcname));
 		entry.put("context", new Integer(Main.currentContext));
 		entry.put("categ", "func");
@@ -211,7 +224,7 @@ public class TDS {
 		entry.put("nbparam", 0);
 		entry.put("nbloc", 0);
 		this.table.put(count++, entry);
-		return true;
+		return num;
 	}
 
 	

@@ -1,4 +1,12 @@
-﻿//RP - 15 avril
+﻿//RP - 16 avril
+
+- completion de la construction de l'arbre au niveau de prog ::= blabla 
+- ajout des noeuds "definition de variables" dans l'arbre, ça serviva pour plus tard, pour définir les contextes
+- creation des arbres pour iteration, condition, conditionnelle
+
+
+
+//RP - 15 avril
 
 - correction de l'ordre d'ajout des fils dans la regle blabla::= grace a la methode empilerFils
 

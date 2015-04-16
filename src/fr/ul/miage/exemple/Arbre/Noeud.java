@@ -44,6 +44,17 @@ public class Noeud {
 		this.fils = newFils;
 	}
 	
+	public void supprimerFils(Noeud nas)
+	{
+		ArrayList<Noeud> newFils = new ArrayList<Noeud>();
+		for(Noeud no : this.fils)
+		{
+			if(!no.equals(nas))
+				newFils.add(no);
+		}
+		this.fils = newFils;
+	}
+	
 	public void empilerFils(Object n)
 	{
 		this.empilerFils((Noeud) n); 
@@ -66,6 +77,14 @@ public class Noeud {
 			this.ajouterFils(f);
 		}
 	}
+	
+	public void empilerFilsDe(Noeud n)
+	{
+		for(Noeud f : n.fils)
+		{
+			this.empilerFils(f);
+		}
+	}
 
 	
 	public void ajouterFils(ArrayList<Noeud> l){
@@ -80,6 +99,10 @@ public class Noeud {
 		return new Noeud(type,valeur);
 	}
 	
+	public boolean equals(Noeud n)
+	{
+		return(this.id == n.id);
+	}
 	
 	/*
 	public void affiche(){
