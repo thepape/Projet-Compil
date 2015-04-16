@@ -1,17 +1,10 @@
 /*
- * Test génération de code : 
- * adressage de variable locale, paramËtre et resultat
+ * Test de contrôle sémantique n°2
  */
 
-int i = 0;
-int j;
+ int i=0;
+ void main(){
 
-int f(int a){
-	int x;
-	x = a+1;
-	return x;
+	i = 0; /* erreur : variable non définie */
  }
-
-void main(){
-	j = f(i);
-}
+ 

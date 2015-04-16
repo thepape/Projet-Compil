@@ -125,7 +125,7 @@ public class Noeud {
 		}
 	}
 	
-	public void corrigerIDFnulls(int contexte)
+	public void corrigerIDFnulls(int contexte) throws Exception
 	{
 		int cxt = contexte;
 		
@@ -136,11 +136,22 @@ public class Noeud {
 				
 		for(Noeud f : this.fils)
 		{
-			if(f.type.equals("IDF") && (f.valeur == null))
+			if(f.type.equals("IDF"))
 			{
 				String idfName = f.tag;
-				int fnum = Main.tds.find(idfName, cxt);
-				f.valeur = fnum;
+				Integer fnum = Main.tds.find(idfName, cxt);
+				
+				//si on trouve pas la variable pour le contexte, on cherche en global
+				if(fnum == null)
+					fnum = Main.tds.find(idfName);
+				
+				if(f.valeur == null)
+					f.valeur = fnum;
+				
+				if(fnum == null)
+				{
+					throw new Exception("Variable "+idfName+" non declaree dans le contexte "+contexte);
+				}
 			}
 			else if(f.fils.size() > 0)
 			{
