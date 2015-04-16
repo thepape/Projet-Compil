@@ -92,8 +92,10 @@ public class Main {
 				tds = new TDS();
 				currentLine=1;
 				
-				System.out.println("Analyse : "+file.getName());
-				analyseFichier(file);
+				System.out.println("\n\nAnalyse : "+file.getName());
+				
+					analyseFichier(file);
+				
 			}
 		}
 		
@@ -129,7 +131,7 @@ public class Main {
 		} catch (Exception e) {
 			System.err.println("...Erreur de syntaxe a la ligne "+Main.currentLine+" (un bloc commentaire compte pour 1 seule ligne)");
 			e.printStackTrace();
-			System.exit(1);
+			//System.exit(1);
 		}
 
 	
