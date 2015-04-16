@@ -1,5 +1,7 @@
 ﻿//RP - 16 avril
 
+
+
 -modification des regles concernant les expression : expr_dyn et expr_const factorisés en un seul symbole expression
 (la detection de s'il s'agit d'une expression de constante se fait dans le code java (e instanceof Integer)
 Ceci afin d'eviter les problemes d'expressions mixtes et de conflits de grammaire.
@@ -10,6 +12,17 @@ en fonction du contexte d'appel)
 - ajout des noeuds "definition de variables" dans l'arbre, ça serviva pour plus tard, pour définir les contextes
 - creation des arbres pour iteration, condition, conditionnelle
 
+-lancement d'exception lorsque deux variables de meme nom existent dans le meme contexte
+-indique le numero de l'instruction pendant laquelle une exception se lance (erreur de syntaxe)
+-ajout de l'attribut "tag" de noeud pour avoir le nom de la variable par exemple (essentiel
+pour la correction de contexte des variables locales)
+-ajout de fonction de controle semantiques:
+	- verification des doubles declarations
+	- gestion des variables non declarees
+	- gestion des conflits de type void
+	- gestion du cas ou il manque des parametres a l'appel d'une fonction
+-lors d'un if/while, les noeuds fils etaient nommés "bla" => renommés en "then","else" / "do"
+- modification de la grammaire de blabla pour autoriser un blabla vide (fonction ou code vide)
 
 
 //RP - 15 avril
