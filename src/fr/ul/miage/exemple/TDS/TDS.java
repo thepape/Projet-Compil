@@ -105,6 +105,31 @@ public class TDS {
 		
 	}
 	
+	public void verifierDoublesDeclarations() throws Exception
+	{
+		Iterator<Entry<Integer, HashMap<String, Object>>> it = this.table.entrySet().iterator();
+		Entry<Integer, HashMap<String, Object>> e;
+		HashMap<String,Object> entree;
+		ArrayList<String> varDeclarees = new ArrayList<String>();
+		
+		while(it.hasNext())
+		{
+			e = it.next();
+			entree = e.getValue();
+			String entreeNom = (String) entree.get("idf");
+			int entreeContext = (int) entree.get("context");
+			
+			if(varDeclarees.contains(entreeNom+":"+entreeContext))
+			{
+				throw new Exception("La variable "+entreeNom+" a deja ete declaree pour le contexte "+entreeContext);
+			}
+			else
+			{
+				varDeclarees.add(entreeNom+":"+entreeContext);
+			}
+		}
+	}
+	
 	
 	public int addVar(String varname, String type, String value) {
 		int res = -1;

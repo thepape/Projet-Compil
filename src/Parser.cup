@@ -41,6 +41,7 @@ prog ::= blabla:p {: if(p != null){ arbre_programme.getRacine().ajouterFilsDe((N
 						arbre_programme.getRacine().supprimerNoeudsDef(); 
 						arbre_programme.getRacine().corrigerNoeudsCall();
 						arbre_programme.getRacine().corrigerIDFnulls(0);
+						Main.tds.verifierDoublesDeclarations();
 						}  
 						afficher(); :} 
 	;
