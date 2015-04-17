@@ -1,6 +1,6 @@
-Problèmes à résoudre :
+﻿Problèmes à résoudre :
 	- Une fonction peut être déclarer dans une autre fonction
-
+	- Une fonction int peut ne pas avoir d'instruction return
 
 
 
