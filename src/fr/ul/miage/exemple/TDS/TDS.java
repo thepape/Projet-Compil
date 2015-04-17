@@ -7,7 +7,7 @@ import fr.ul.miage.exemple.Main;
 
 public class TDS {
 	
-	private HashMap<Integer, HashMap<String,Object>> table;
+	public HashMap<Integer, HashMap<String,Object>> table;
 	
 	private int count;
 	
