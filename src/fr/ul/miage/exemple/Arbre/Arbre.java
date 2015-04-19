@@ -59,12 +59,13 @@ public class Arbre {
 			else if(categ.equals("var") && context != 0)
 			{
 				//var locale
-				
-				//i have no fcking idea...
+				int x =  (1 + (Integer) Main.tds.get(n.valeur, "rang")) * (4);
+				sb.append("\n GETFRAME("+x+", R0)");
+				sb.append("\n PUSH(R0)");
 			}
 			else if(categ.equals("param"))
 			{
-				int x =  (2 + (Integer) Main.tds.get(n.valeur, "rang")) * (-4);
+				int x =  (3 + (Integer) Main.tds.get(n.valeur, "rang")) * (-4);
 				sb.append("\n GETFRAME("+x+", R0)");
 				sb.append("\n PUSH(R0)");
 			}
@@ -92,7 +93,7 @@ public class Arbre {
 		}
 		else if(n.type.equals("CALL"))
 		{
-			sb.append("\n ALLOCATE(1)");
+			sb.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
 			
 			for(int i = n.fils.size()-1 ; i >= 0 ; i--)
 			{
@@ -100,7 +101,7 @@ public class Arbre {
 			}
 			
 			sb.append("\n CALL("+Main.tds.get(n.valeur, "idf")+")");
-			sb.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+")");
+			sb.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
 		}
 		else if(n.type.equals("READ"))
 		{
@@ -115,15 +116,36 @@ public class Arbre {
 		StringBuffer res = new StringBuffer("\n|generer affectation");
 		res.append("\n| "+Main.tds.get(n.fils.get(0).valeur, "idf")+" = ");
 		
+		String categ = (String) Main.tds.get(n.fils.get(0).valeur, "categ");
+		Integer context = (Integer) Main.tds.get(n.fils.get(0).valeur, "context");
 		
 		res.append(this.generer_expression(n.fils.get(1)));
 		res.append("\n POP(R0)");
-		res.append("\n ST(R0,"+Main.tds.get(n.fils.get(0).valeur, "idf")+")");
+		
+		if(categ.equals("var") && context == 0)
+		{
+			//var globale
+			res.append("\n ST(R0,"+Main.tds.get(n.fils.get(0).valeur, "idf")+")");
+			
+			//code a confirmer...
+		}
+		else if(categ.equals("var") && context != 0)
+		{
+			//var locale
+			int x =  (1 + (Integer) Main.tds.get(n.fils.get(0).valeur, "rang")) * (4);
+			res.append("\n PUTFRAME(R0,"+x+")");;
+		}
+		else if(categ.equals("param"))
+		{
+			int x =  (2 + (Integer) Main.tds.get(n.fils.get(0).valeur, "rang")) * (-4);
+			res.append("\n PUTFRAME(R0,"+x+")");
+			
+		}
 		
 		return res.toString();
 	}
 	
-	public String generer_instruction(Noeud n)
+	public String generer_instruction(Noeud n, int contexte)
 	{
 		StringBuffer res = new StringBuffer("\n|generer instruction");
 		
@@ -133,7 +155,30 @@ public class Arbre {
 				
 				res.append(this.generer_affectation(n));
 			}
-		
+			else if(n.type.equals("CALL"))
+			{
+				res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+				
+				//pour chaque argument de la fonction, en partant de la fin,
+				for(int i = n.fils.size()-1 ; i >= 0 ; i--)
+				{
+					//on recupere sa valeur
+					res.append(this.generer_expression(n.fils.get(i)));
+					/*res.append("\n POP(R0)");
+					//et on la stocke dans les parametres de la fonction
+					int x = ((2 + (int) Main.tds.get(n.fils.get(i).valeur, "rang"))*(-4));
+					res.append("\n PUTFRAME(R0,"+x+")");*/
+				}
+				
+				res.append("\n CALL("+Main.tds.get(n.valeur, "idf")+")");
+				res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+")");
+			}
+			else if(n.type.equals("RET"))
+			{
+				res.append("\n POP(R0)");
+				res.append("\n PUTFRAME("+((3 * (int) Main.tds.get(contexte, "nbparam")) * (-4))+",R0)");
+				res.append("\n BR(res_"+Main.tds.get(contexte, "idf")+")");
+			}
 		
 		return res.toString();
 	}
@@ -142,12 +187,20 @@ public class Arbre {
 	{
 		StringBuffer res = new StringBuffer("\n|generer la fonction");
 		res.append("\n"+Main.tds.get(n.valeur, "idf")+":");
+		res.append("\n PUSH(LP)");
+		res.append("\n PUSH(BP)");
+		res.append("\n MOVE(SP,BP)");
+		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
 		
 		for(Noeud f : n.fils)
 		{
 			
-				res.append(this.generer_instruction(f));
+				res.append(this.generer_instruction(f, n.valeur));
 		}
+		res.append("\nret_"+Main.tds.get(n.valeur, "idf")+":");
+		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+		res.append("\n POP(BP)");
+		res.append("\n POP(LP)");
 		res.append("\nRTN()");
 		return res.toString();
 	}
@@ -204,7 +257,9 @@ public class Arbre {
 		
 		res.append(this.generer_data());
 		res.append("\n debut:");
+		res.append("\n PUSH(LP)");
 		res.append("\n CALL(main)");
+		res.append("\n POP(LP)");
 		res.append("\n HALT()");
 		
 		res.append(this.generer_fonctions());

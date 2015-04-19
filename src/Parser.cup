@@ -248,7 +248,10 @@ callFunc ::= VAR:v PO args:a PF {: 	Noeud callf;
 	;
 
 args ::= expression:e VRG args:a {: Stack<Noeud> pargs = (Stack<Noeud>) a;
-									pargs.push((Noeud) e);
+									if(e instanceof Integer)
+										pargs.push(new Noeud("CST", (Integer)e));
+									else
+										pargs.push((Noeud) e);
 									RESULT=pargs; :}
 
 	| expression:e {: Stack<Noeud> pargs = new Stack<Noeud>();

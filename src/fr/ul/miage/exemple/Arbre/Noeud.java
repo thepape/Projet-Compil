@@ -16,7 +16,7 @@ public class Noeud {
 	public Noeud(String t, Integer v)
 	{
 		this.id = Noeud.count++;
-		this.type = t;
+		this.type = Main.virerEspaces(t);
 		this.valeur = v;
 		fils = new ArrayList<Noeud>();
 	}
@@ -24,7 +24,7 @@ public class Noeud {
 	public Noeud(String e)
 	{
 		this.id = Noeud.count++;
-		this.type = e;
+		this.type = Main.virerEspaces(e);
 		this.valeur = null;
 		fils = new ArrayList<Noeud>();
 	}
