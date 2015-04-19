@@ -20,7 +20,9 @@ action code {:
    
 	public void afficher() {
 	
-		arbre_programme.affiche();		
+		arbre_programme.affiche();	
+		String code = arbre_programme.generer_le_code();	
+		System.out.println(code);
 	}	
 	
 :};

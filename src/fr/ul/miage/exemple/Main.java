@@ -24,7 +24,7 @@ import fr.ul.miage.exemple.generated.Yylex;
 public class Main {
 	
 	public static int count = 1;
-	public static boolean debugMode=false;
+	public static boolean debugMode=true;
 	public static Noeud racine = new Noeud("PROG");
 	public static int currentContext=0;
 	public static TDS tds = new TDS();
@@ -74,10 +74,10 @@ public class Main {
 		
 		
 		
-		analyseFichier(new File("exemple.miage"));
+		analyseFichier(new File("ex.miage"));
 		
 		
-		
+		/*
 		String path = "Fichiers_test";
 		
 		File[] files = new File(path).listFiles();
@@ -98,7 +98,7 @@ public class Main {
 				
 			}
 		}
-		
+		*/
 
 }
 
@@ -112,7 +112,7 @@ public class Main {
 		try {
 			fis = new FileInputStream(file);
 			parser = new ParserCup(new Yylex(fis));
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			System.out.println("Fichier non trouvé ou illisible.");
 			System.out.println("Entrez la chaine à analyser : ");
 			parser = new ParserCup(new Yylex(System.in));

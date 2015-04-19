@@ -1,12 +1,9 @@
-/*
- * Test génération de code : 
- * adressage de variable locale, paramËtre et resultat
- */
-
+﻿
+int i,j;
 
 void main(){
 	
-	void main2() {
-	}
+	i=0;
+	j=2;
 	
 }

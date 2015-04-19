@@ -34,15 +34,17 @@ public class Arbre {
 	
 	public String generer_expression(Noeud n)
 	{
-		StringBuffer sb = new StringBuffer("");
+		StringBuffer sb = new StringBuffer("\n|generer expression");
 		
 		if(n.type.equals("CST"))
 		{
+			sb.append("\n| CST:"+n.valeur);
 			sb.append("\n CMOVE("+n.valeur+", R0)");
 			sb.append("\n PUSH(R0)");
 		}
 		else if(n.type.equals("IDF"))
 		{
+			sb.append("\n| IDF:"+Main.tds.get(n.valeur, "idf"));
 			String categ = (String) Main.tds.get(n.valeur, "categ");
 			Integer context = (Integer) Main.tds.get(n.valeur, "context");
 			
@@ -70,6 +72,7 @@ public class Arbre {
 		}
 		else if(n.type.equals("+") || n.type.equals("-") || n.type.equals("*") || n.type.equals("/"))
 		{
+			sb.append("\n| OP:"+n.type);
 			sb.append(this.generer_expression(n.fils.get(0)));
 			sb.append(this.generer_expression(n.fils.get(1)));
 			
@@ -83,7 +86,7 @@ public class Arbre {
 			else if(n.type.equals("*"))
 				sb.append("\n MUL(R1,R2,R3)");
 			else if(n.type.equals("/"))
-				sb.append("\n ADD(R1,R2,R3)");
+				sb.append("\n DIV(R1,R2,R3)");
 			
 			sb.append("\n PUSH(R3)");
 		}
@@ -109,33 +112,49 @@ public class Arbre {
 	
 	public String generer_affectation(Noeud n)
 	{
-		StringBuffer res = new StringBuffer("");
+		StringBuffer res = new StringBuffer("\n|generer affectation");
+		res.append("\n| "+Main.tds.get(n.fils.get(0).valeur, "idf")+" = ");
+		
 		
 		res.append(this.generer_expression(n.fils.get(1)));
 		res.append("\n POP(R0)");
-		res.append("\n ST(R0,"+Main.tds.get(n.valeur, "idf")+")");
+		res.append("\n ST(R0,"+Main.tds.get(n.fils.get(0).valeur, "idf")+")");
+		
+		return res.toString();
+	}
+	
+	public String generer_instruction(Noeud n)
+	{
+		StringBuffer res = new StringBuffer("\n|generer instruction");
+		
+		
+			if(n.type.equals("="))
+			{
+				
+				res.append(this.generer_affectation(n));
+			}
+		
 		
 		return res.toString();
 	}
 	
 	public String generer_fonction1(Noeud n)
 	{
-		StringBuffer res = new StringBuffer("");
+		StringBuffer res = new StringBuffer("\n|generer la fonction");
+		res.append("\n"+Main.tds.get(n.valeur, "idf")+":");
 		
 		for(Noeud f : n.fils)
 		{
-			if(f.type.equals("="))
-			{
-				res.append(this.generer_affectation(f));
-			}
+			
+				res.append(this.generer_instruction(f));
 		}
-		
+		res.append("\nRTN()");
 		return res.toString();
 	}
 	
 	public String generer_data()
 	{
-		StringBuffer res = new StringBuffer("");
+		StringBuffer res = new StringBuffer("\n|generer data");
 		TDS tds = Main.tds;
 		
 		Iterator<Entry<Integer, HashMap<String, Object>>> it = tds.table.entrySet().iterator();
@@ -164,11 +183,12 @@ public class Arbre {
 	
 	public String generer_fonctions()
 	{
-		StringBuffer res = new StringBuffer();
+		StringBuffer res = new StringBuffer("\n|generer fonctions");
 		
 		for(Noeud f : this.racine.fils)
 		{
-			res.append(this.generer_fonction1(f));
+			if(f.type.equals("FUNC"))
+				res.append(this.generer_fonction1(f));
 		}
 		
 		return res.toString();
@@ -176,9 +196,9 @@ public class Arbre {
 	
 	public String generer_le_code()
 	{
-		StringBuffer res = new StringBuffer("");
+		StringBuffer res = new StringBuffer("\n|generer le code");
 		
-		res.append("\n include beta.uasm.txt");
+		res.append("\n .include beta.uasm.txt");
 		res.append("\n CMOVE(pile,SP)");
 		res.append("\n BR(debut)");
 		
