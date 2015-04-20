@@ -231,6 +231,9 @@ public class Noeud {
 					throw new Exception("La variable "+fname+" est existe deja dans le contexte "+cxt);
 				}
 				
+				//on peut maintenant ajouter le rang a cette variable
+				Main.tds.set(f.valeur, "rang", nbloc-1);
+				
 			}
 			else if(f.type.equals("IDF"))
 			{

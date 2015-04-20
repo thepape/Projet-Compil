@@ -1,7 +1,8 @@
 int out=0;
 
 int mul(int a, int b){
-	return a*b;
+	int d=1;
+	return a*b+d;
 }
 
 void main(){
