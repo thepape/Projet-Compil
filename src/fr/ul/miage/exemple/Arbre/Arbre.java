@@ -454,8 +454,17 @@ public class Arbre {
 	public String generer_le_code()
 	{
 		StringBuffer res = new StringBuffer("\n|generer le code");
-		
+		//inclusion des macros
 		res.append("\n .include beta.uasm.txt");
+		
+		//BSIM c'est genial, ca lance des Interrupted Exception des qu'on utilise un JMP quelque part, 
+		//qui font boucler le programme a partir de l'instruction 4
+		//voici donc un petite astuce capable de parer a ce probleme : on place un HALT() a l'instruction 4
+		String pareEx = 	"\n BR(begin)" +
+							"\n stop:" +
+							"\n HALT()"+
+							"\n begin:";
+		res.append(pareEx);
 		res.append("\n CMOVE(pile,SP)");
 		//on va au debut du programme global
 		res.append("\n BR(debut)");
@@ -468,7 +477,8 @@ public class Arbre {
 		res.append("\n PUSH(LP)");
 		res.append("\n CALL(main)");
 		res.append("\n POP(LP)");
-		res.append("\n HALT()");
+		//res.append("\n HALT()"); //remplace par la commande ci dessous, tant que BSIM lancera des exceptions intempestives
+		res.append("\n BR(stop)");
 		
 		//on genere les fonctions presentes dans le code
 		res.append(this.generer_fonctions());
