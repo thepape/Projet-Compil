@@ -64,9 +64,8 @@ public class Arbre {
 		}
 		else if(n.type.equals("!="))
 		{
-			res.append("\n CMPLT(R0,R1,R2)");
-			res.append("\n CMPLT(R1,R0,R3)");
-			res.append("\n ADD(R2,R3,R0)");
+			res.append("\n CMPEQ(R0,R1,R0)");
+			res.append("\n XORC(R0,1,R0)");
 		}
 		
 		res.append("\n PUSH(R0)");
@@ -309,6 +308,30 @@ public class Arbre {
 					
 					res.append("\n fi_"+n.id+":");
 				}
+			}
+			else if(n.type.equals("WHILE"))
+			{
+				res.append("\n while_"+n.id+":");
+				res.append(this.generer_condition(n.fils.get(0)));
+				
+				res.append("\n POP(R0)");
+				res.append("\n XORC(R0,1,R0)");
+				res.append("\n CMOVE(do_"+n.id+",R6)");
+				res.append("\n CMOVE(fw_"+n.id+",R7)");
+				res.append("\n SUB(R7,R6,R3)");
+				res.append("\n MUL(R0,R3,R3)");
+				res.append("\n ADD(R6,R3,R3)");
+				res.append("\n JMP(R3)");
+				res.append("\n do_"+n.id+":");
+				
+				//pour chaque fils du (DO)...
+				for(Noeud f : n.fils.get(1).fils)
+				{
+					res.append(this.generer_instruction(f, contexte));
+				}
+				
+				res.append("\n BR(while_"+n.id+")");
+				res.append("\n fw_"+n.id+":");
 			}
 		
 		return res.toString();
