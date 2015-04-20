@@ -93,7 +93,11 @@ public class Arbre {
 		}
 		else if(n.type.equals("CALL"))
 		{
-			sb.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+			//sb.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")|allocation des variables locales");
+			if(!Main.tds.get(n.valeur, "type").equals("void"))
+			{
+				sb.append("\n ALLOCATE(1) |+allocation de la valeur de retour");
+			}
 			
 			for(int i = n.fils.size()-1 ; i >= 0 ; i--)
 			{
@@ -101,7 +105,7 @@ public class Arbre {
 			}
 			
 			sb.append("\n CALL("+Main.tds.get(n.valeur, "idf")+")");
-			sb.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+			//sb.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |desallocation des variables locales");
 		}
 		else if(n.type.equals("READ"))
 		{
@@ -132,7 +136,7 @@ public class Arbre {
 		else if(categ.equals("var") && context != 0)
 		{
 			//var locale
-			int x =  (1 + (Integer) Main.tds.get(n.fils.get(0).valeur, "rang")) * (4);
+			int x =  (0 + (Integer) Main.tds.get(n.fils.get(0).valeur, "rang")) * (4);
 			res.append("\n PUTFRAME(R0,"+x+")");;
 		}
 		else if(categ.equals("param"))
@@ -157,7 +161,7 @@ public class Arbre {
 			}
 			else if(n.type.equals("CALL"))
 			{
-				res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+				
 				
 				//pour chaque argument de la fonction, en partant de la fin,
 				for(int i = n.fils.size()-1 ; i >= 0 ; i--)
@@ -171,13 +175,14 @@ public class Arbre {
 				}
 				
 				res.append("\n CALL("+Main.tds.get(n.valeur, "idf")+")");
-				res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+")");
+				res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+") |desallocation des parametres");
 			}
 			else if(n.type.equals("RET"))
 			{
+				res.append(this.generer_expression(n.fils.get(0)));
 				res.append("\n POP(R0)");
-				res.append("\n PUTFRAME("+((3 * (int) Main.tds.get(contexte, "nbparam")) * (-4))+",R0)");
-				res.append("\n BR(res_"+Main.tds.get(contexte, "idf")+")");
+				res.append("\n PUTFRAME(R0,"+((3 + (int) Main.tds.get(contexte, "nbparam")) * (-4))+")");
+				res.append("\n BR(ret_"+Main.tds.get(contexte, "idf")+")");
 			}
 		
 		return res.toString();
@@ -190,7 +195,8 @@ public class Arbre {
 		res.append("\n PUSH(LP)");
 		res.append("\n PUSH(BP)");
 		res.append("\n MOVE(SP,BP)");
-		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |allocation des variables locales");
+		
 		
 		for(Noeud f : n.fils)
 		{
@@ -198,9 +204,10 @@ public class Arbre {
 				res.append(this.generer_instruction(f, n.valeur));
 		}
 		res.append("\nret_"+Main.tds.get(n.valeur, "idf")+":");
-		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+")");
+		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |desallocation des variables locales");
 		res.append("\n POP(BP)");
 		res.append("\n POP(LP)");
+		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+") |desallocation des variables parametres effectifs");
 		res.append("\nRTN()");
 		return res.toString();
 	}
