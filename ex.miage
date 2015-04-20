@@ -1,10 +1,13 @@
-int out=0;
+int i=10;
 
-int mul(int a, int b){
-	int d=1;
-	return a*b+d;
+int f(int a, int b, int c){
+	int i,j;
+	i=1;
+	j=2;
+
+	return i+j+a+b+c;
 }
 
 void main(){
-	out = mul(2,4);
+	i = i + f(3,4,5);
 }

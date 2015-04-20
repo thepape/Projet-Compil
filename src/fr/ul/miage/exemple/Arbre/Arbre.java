@@ -59,7 +59,7 @@ public class Arbre {
 			else if(categ.equals("var") && context != 0)
 			{
 				//var locale
-				int x =  (1 + (Integer) Main.tds.get(n.valeur, "rang")) * (4);
+				int x =  (0 + (Integer) Main.tds.get(n.valeur, "rang")) * (4);
 				sb.append("\n GETFRAME("+x+", R0)");
 				sb.append("\n PUSH(R0)");
 			}
@@ -197,6 +197,24 @@ public class Arbre {
 		res.append("\n MOVE(SP,BP)");
 		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |allocation des variables locales");
 		
+		//pour chaque variable locale de la fonction dans la TDS, on la putframe
+		Iterator<Entry<Integer, HashMap<String, Object>>> it = Main.tds.table.entrySet().iterator();
+		Entry<Integer, HashMap<String, Object>> e;
+		HashMap<String,Object> entree;
+		
+		while(it.hasNext())
+		{
+			e = it.next();
+			entree = e.getValue();
+			
+			if(entree != null && entree.get("categ").equals("var") && entree.get("context").equals(n.valeur))
+			{
+				res.append("\n CMOVE("+Main.tds.get((Integer) entree.get("num"), "value")+",R0)");
+				int x =  (0 + (Integer) Main.tds.get((Integer) entree.get("num"), "rang")) * (4);
+				res.append("\n PUTFRAME(R0,"+x+")");
+			}
+			
+		}
 		
 		for(Noeud f : n.fils)
 		{

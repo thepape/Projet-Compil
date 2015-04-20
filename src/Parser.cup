@@ -21,7 +21,7 @@ action code {:
 	public void afficher() {
 	
 		arbre_programme.affiche();	
-		Main.tds.affiche();
+		
 		String code = arbre_programme.generer_le_code();	
 		System.out.println(code);
 	}	
