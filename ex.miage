@@ -1,9 +1,9 @@
 int out=0;
 
-void mul(int a, int b){
-	out = a*b;
+int mul(int a, int b){
+	return a*b;
 }
 
 void main(){
-	mul(2,4);
+	out = mul(2,4);
 }
