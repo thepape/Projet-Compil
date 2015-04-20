@@ -1,10 +1,9 @@
-int d=0;
 
-void delta(int a, int b, int c){
-	
-	d = (b*b) - (4*a*c);
-}
-
+int i = 3; int j;
 void main(){
-	delta(2,5,2);
-}
+	if (i < 2){
+		j = 0;
+	}else{
+		j = 1;
+	}
+ }

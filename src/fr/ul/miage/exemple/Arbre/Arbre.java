@@ -32,6 +32,48 @@ public class Arbre {
 		racine = r;
 	}
 	
+	public String generer_condition(Noeud n)
+	{
+		StringBuffer res = new StringBuffer("\n|condition");
+		
+		res.append(this.generer_expression(n.fils.get(0)));
+		res.append(this.generer_expression(n.fils.get(1)));
+		
+		res.append("\n POP(R1)");
+		res.append("\n POP(R0)");
+		
+		if(n.type.equals("=="))
+		{
+			res.append("\n CMPEQ(R0,R1,R0)");
+		}
+		else if(n.type.equals("<"))
+		{
+			res.append("\n CMPLT(R0,R1,R0)");
+		}
+		else if(n.type.equals("<="))
+		{
+			res.append("\n CMPLE(R0,R1,R0)");
+		}
+		else if(n.type.equals(">"))
+		{
+			res.append("\n CMPLT(R1,R0,R0)");
+		}
+		else if(n.type.equals(">="))
+		{
+			res.append("\n CMPLE(R1,R0,R0)");
+		}
+		else if(n.type.equals("!="))
+		{
+			res.append("\n CMPLT(R0,R1,R2)");
+			res.append("\n CMPLT(R1,R0,R3)");
+			res.append("\n ADD(R2,R3,R0)");
+		}
+		
+		res.append("\n PUSH(R0)");
+		
+		return res.toString();
+	}
+	
 	/**
 	 * genere une expression
 	 * @param n noeud racine de l'expression (+),(-),(CST),(CALL),...
@@ -179,7 +221,13 @@ public class Arbre {
 			}
 			else if(n.type.equals("CALL"))
 			{
-				
+				//ici on a un appel de fonction dont on ne recupere pas le resultat si il y en a un
+				//si la fonction a un type de retour, on alloue une case memoire pour la valeur de retour
+				//pour ne pas faire bugger la suite
+				if(!Main.tds.get(n.valeur, "type").equals("void"))
+				{
+					res.append("\n ALLOCATE(1) |+allocation de la valeur de retour de "+Main.tds.get(n.valeur, "idf"));
+				}
 				
 				//pour chaque argument de la fonction, en partant de la fin,
 				for(int i = n.fils.size()-1 ; i >= 0 ; i--)
@@ -193,6 +241,11 @@ public class Arbre {
 				}
 				
 				res.append("\n CALL("+Main.tds.get(n.valeur, "idf")+")");
+				
+				//si la fonction est censee retourner qqchose, on vire la valeur de retour de la pile
+				//car ici on ne veut pas la recuperer
+				if(!Main.tds.get(n.valeur, "type").equals("void"))
+					res.append("\n DEALLOCATE(1) |desallocation de la valeur de retour de "+Main.tds.get(n.valeur, "idf"));
 				//res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+") |desallocation des parametres");
 			}
 			else if(n.type.equals("RET"))
@@ -201,6 +254,61 @@ public class Arbre {
 				res.append("\n POP(R0)");
 				res.append("\n PUTFRAME(R0,"+((3 + (int) Main.tds.get(contexte, "nbparam")) * (-4))+")");
 				res.append("\n BR(ret_"+Main.tds.get(contexte, "idf")+")");
+			}
+			else if(n.type.equals("IF"))
+			{
+				res.append(this.generer_condition(n.fils.get(0)));
+				
+				//si on a juste un IF-THEN, alors...
+				if(n.fils.size() == 2)
+				{
+					res.append("\n POP(R0)");
+					res.append("\n CMOVE(fi_"+n.id+":,R6)");
+					res.append("\n CMOVE(then_"+n.fils.get(1).id+":,R7)");
+					res.append("\n SUB(R7,R6,R3)");
+					res.append("\n MUL(R0,R3,R3)");
+					res.append("\n ADD(R6,R3,R3)");
+					res.append("\n JMP(R3)");
+					
+					res.append("\n then_"+n.fils.get(1).id+":");
+					
+					for(Noeud f : n.fils.get(1).fils)
+					{
+						res.append(this.generer_instruction(f, contexte));
+					}
+					res.append("\n BR(fi_"+n.id+")");
+					
+					res.append("\n fi_"+n.id+":");
+					
+				}
+				else
+				{
+					res.append("\n POP(R0)");
+					res.append("\n CMOVE(else_"+n.fils.get(1).id+",R6)");
+					res.append("\n CMOVE(then_"+n.fils.get(2).id+",R7)");
+					res.append("\n SUB(R7,R6,R3)");
+					res.append("\n MUL(R0,R3,R3)");
+					res.append("\n ADD(R6,R3,R3)");
+					res.append("\n JMP(R3)");
+					
+					res.append("\n else_"+n.fils.get(2).id+":");
+					
+					for(Noeud f : n.fils.get(2).fils)
+					{
+						res.append(this.generer_instruction(f, contexte));
+					}
+					res.append("\n BR(fi_"+n.id+")");
+					
+					res.append("\n then_"+n.fils.get(1).id+":");
+					
+					for(Noeud f : n.fils.get(1).fils)
+					{
+						res.append(this.generer_instruction(f, contexte));
+					}
+					res.append("\n BR(fi_"+n.id+")");
+					
+					res.append("\n fi_"+n.id+":");
+				}
 			}
 		
 		return res.toString();
@@ -221,7 +329,7 @@ public class Arbre {
 		res.append("\n PUSH(BP)");
 		res.append("\n MOVE(SP,BP)");
 		//on alloue autant de places en pile que le nombre de variables locales (situees SUR BP dans la pile)
-		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |allocation des variables locales");
+		res.append("\n ALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |allocation des variables locales de "+Main.tds.get(n.valeur, "idf"));
 		
 		//pour chaque variable locale de la fonction dans la TDS, on la met dans les emplacements alloues
 		//via le allocate precedent via un PUTFRAME(valeur, var.rang*4)
@@ -251,13 +359,13 @@ public class Arbre {
 		}
 		res.append("\nret_"+Main.tds.get(n.valeur, "idf")+":");
 		//on retire de la pile les variables locales (on en a pu besoin)
-		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |desallocation des variables locales");
+		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbloc")+") |desallocation des variables locales de "+Main.tds.get(n.valeur, "idf"));
 		//on enleve l'indicateur de base pile local
 		res.append("\n POP(BP)");
 		//on recupere le numero d'instruction qui nous permet de retourner dans le code appelant
 		res.append("\n POP(LP)");
 		//on retire de la pile les arguments de la fonction
-		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+") |desallocation des variables parametres effectifs");
+		res.append("\n DEALLOCATE("+Main.tds.get(n.valeur, "nbparam")+") |desallocation des parametres effectifs de "+Main.tds.get(n.valeur, "idf"));
 		res.append("\nRTN()");
 		return res.toString();
 	}
