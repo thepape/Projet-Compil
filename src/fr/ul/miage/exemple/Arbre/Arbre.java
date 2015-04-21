@@ -262,8 +262,8 @@ public class Arbre {
 				if(n.fils.size() == 2)
 				{
 					res.append("\n POP(R0)");
-					res.append("\n CMOVE(fi_"+n.id+":,R6)");
-					res.append("\n CMOVE(then_"+n.fils.get(1).id+":,R7)");
+					res.append("\n CMOVE(fi_"+n.id+",R6)");
+					res.append("\n CMOVE(then_"+n.fils.get(1).id+",R7)");
 					res.append("\n SUB(R7,R6,R3)");
 					res.append("\n MUL(R0,R3,R3)");
 					res.append("\n ADD(R6,R3,R3)");
@@ -283,8 +283,8 @@ public class Arbre {
 				else
 				{
 					res.append("\n POP(R0)");
-					res.append("\n CMOVE(else_"+n.fils.get(1).id+",R6)");
-					res.append("\n CMOVE(then_"+n.fils.get(2).id+",R7)");
+					res.append("\n CMOVE(else_"+n.fils.get(2).id+",R6)");
+					res.append("\n CMOVE(then_"+n.fils.get(1).id+",R7)");
 					res.append("\n SUB(R7,R6,R3)");
 					res.append("\n MUL(R0,R3,R3)");
 					res.append("\n ADD(R6,R3,R3)");

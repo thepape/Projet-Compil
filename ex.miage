@@ -1,13 +1,16 @@
 /*
  * Test génération de code : 
- * boucle
+ * recursivité
  */
+int x ;
 
-int i;
-void main(){
-	i = 0;
-	while (i <3){
-		i=i+1;
+int pow2(int n){
+	if (n == 1){
+		return 2;
 	}
- }
+	return (pow2(n-1) * 2);
+}
 
+void main(){
+	x = pow2(3);
+}
