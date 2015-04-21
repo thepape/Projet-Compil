@@ -1,11 +1,66 @@
 ﻿Problèmes à résoudre :
 	- Une fonction peut être déclarer dans une autre fonction
 	- Une fonction int peut ne pas avoir d'instruction return
+	- la pile (Stack) de BSIM est trop petite pour les programmes longs ou très recursifs : elle devient debordee
+	et des push se font dans le vide.
+	- l'utilisation d'un JMP(...), n'importe où dans le code, fait littéralement peter un cable a BSIM : il lance 
+	une interrupted exception dès qu'il rencontre un HALT() (registre XP != 0) et revient à l'instruction 004, et
+	boucle comme ça indéfiniment. Solution pas très propre mise en place : on a mis un HALT() à l'instruction 004.
+	- une condition ne peut avoir que des expressions comme fils : expression [<|>|==|...] expression
+
+//RP - 20 avril
+
+- generation d'une fonction recursive OK (testé mais pas sur l'exemple du prof car bof bof)
+	- ATTENTION : trop de recursivité fait deborder la pile
+
+- correction du problemme de bouclage infini : 
+	- l'utilisation d'un JMP(...), n'importe où dans le code, fait littéralement peter un cable a BSIM : il lance 
+	une interrupted exception dès qu'il rencontre un HALT() (registre XP != 0) et revient à l'instruction 004, et
+	boucle comme ça indéfiniment. Solution pas très propre mise en place : on a mis un HALT() à l'instruction 004.
+
+- generation des instructions WHILE-DO sur le meme principe que le if-then-else :
+	- probleme de bouclage rencontré (retour a l'instruction 004 a cause de la présence
+	d'un JMP)
+
+- generation des instructions if-then-else :
+	- utilisation des commandes CMPEQ/CMPLE/... et la commande XORC(R0,1,R0) (permet 
+	d'inverser le bit dans R0). Voir doc du programme pour plus d'informations
+
+//RP - 19 avril
+
+- la generation prend en compte correctement les variables locales :
+	- ALLOCATE(nombre de var loc) au debut de l'appel, stockage/recuperation de valeur via
+	PUTFRAME/GETFRAME
+
+- correctif dans la creation de la TDS :
+	- ajout du "rang" pour une variable globale (indispensable pour savoir vers quelle
+	case de la pile pointer le GETFRAME/PUTFRAME)
+
+-generation correcte d'une fonction (avec ou sans parametres) avec valeur de retour (return) :
+	- la valeur de retour est sauvegardee en pile via un PUTFRAME sur la case allouée via
+	le ALLOCATE lors de l'appel (avant que les parametres ne soient pushé et que les 
+	variables globales ne soit allouées) => lorsque l'appel de fonction est terminé, on se
+	retrouve avec la valeur de retour en sommet de pile (pratique lorsqu'on appelle une 
+	fonction dans une expression (ex: a = f(10); )
+
+- generation correcte d'une fonction avec parametres (gestion des GETFRAME/PUTFRAME)
+
+- amelioration generation code:
+	- amelioration des fonctions de generation de code et verification du code generé sur
+	BSIM : les fichiers 03 - 04 sont OK
 
 
+//RP - 17 avril
 
-
-
+- ajout des fonctions de generations assembleur:
+	- generer_expression : genere une expression censée retourner un resultat (+),(*),(CALL),...
+	- generer_affectation : genere une affectation a une variable (=)
+	- generer_fonction1 : genere le code d'une fonction (FUNC)
+	- generer_fonctions : genere le code de toutes les fonctions que contient la racine du
+	programme
+	- generer_data : genere le code des variables globales de la TDS
+	- generer_le_code : genere le code total du programme en appelant les fonctions citees
+	plus haut
 
 
 //J - 16 avril
