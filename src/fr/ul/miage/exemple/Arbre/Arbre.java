@@ -261,12 +261,23 @@ public class Arbre {
 				//si on a juste un IF-THEN, alors...
 				if(n.fils.size() == 2)
 				{
+					//on recupere la valeur de la condition stockee en pile (1=true, 0=false)
 					res.append("\n POP(R0)");
+					//on met l'adresse du debut du bloc fi: (fin if)
 					res.append("\n CMOVE(fi_"+n.id+",R6)");
+					//pareil pour le bloc then:
 					res.append("\n CMOVE(then_"+n.fils.get(1).id+",R7)");
+					//on calcule la difference en nombre d'instruction entre then: et fi: (resultat negatif car addresse de then: < addresse de fi:)
 					res.append("\n SUB(R7,R6,R3)");
+					//on multiplie cette difference par le bit de condition stocke en R0 :
+					//si R0=1, (condition vraie), R3 aura comme valeur la difference negative calculee plus haut
+					//si R0=0, R3 sera egal a 0
 					res.append("\n MUL(R0,R3,R3)");
+					//on ajoute R3 (difference) a l'addresse de l'instruction fi:
+					//si la condition etait vraie, R3 sera egal a ( addresse de fi: + difference entre then: et fi:) = addresse de then:
+					//sinon, R3 sera egal a (addresse de fi: - 0) = addresse de fi:
 					res.append("\n ADD(R6,R3,R3)");
+					//on Jump a l'addresse d'instruction qui resulte du calcul plus haut
 					res.append("\n JMP(R3)");
 					
 					res.append("\n then_"+n.fils.get(1).id+":");
@@ -282,6 +293,7 @@ public class Arbre {
 				}
 				else
 				{
+					//meme principe que pour then: et fi:, mais avec else: a la place de fi:
 					res.append("\n POP(R0)");
 					res.append("\n CMOVE(else_"+n.fils.get(2).id+",R6)");
 					res.append("\n CMOVE(then_"+n.fils.get(1).id+",R7)");
@@ -314,13 +326,26 @@ public class Arbre {
 				res.append("\n while_"+n.id+":");
 				res.append(this.generer_condition(n.fils.get(0)));
 				
+				//base sur le meme principe que pour le then: et fi: mais avec quelques differences :
+				//on recupere la valeur de la condition en R0
 				res.append("\n POP(R0)");
+				//on inverse la valeur (si R0=1, alors R0=0, et inversement)
 				res.append("\n XORC(R0,1,R0)");
+				//on stocke en R6 l'addresse du debut du bloc do:
 				res.append("\n CMOVE(do_"+n.id+",R6)");
+				//idem pour le bloc fw: (fin while)
 				res.append("\n CMOVE(fw_"+n.id+",R7)");
+				//on fait la difference entre fw: et do: (difference positive car addresse de fw: > addresse de do:)
 				res.append("\n SUB(R7,R6,R3)");
+				//on multiplie cette difference par le bit de condition inverse precedement :
+				//si condition etait vraie, alors R0=0 => R3= (fw: - do:) * 0 = 0
+				//si confition fausse, alors R0=1 => R3= (fw: - do:) * 1 = (fw: - do:)
 				res.append("\n MUL(R0,R3,R3)");
+				//on ajoute le resultat precedent a R6 (addresse de do:)
+				//si condition etait vraie, R3 = addresse de do: + 0 = addresse de do:
+				//sinon, R3 = addresse de do: + (addresse de fi: - addresse de do:) = addresse de fi:
 				res.append("\n ADD(R6,R3,R3)");
+				//on jump a l'addresse resultat dans R3
 				res.append("\n JMP(R3)");
 				res.append("\n do_"+n.id+":");
 				
