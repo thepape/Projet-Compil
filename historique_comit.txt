@@ -1,6 +1,7 @@
 ﻿Problèmes à résoudre :
 	- Une fonction peut être déclarer dans une autre fonction
 	- Une fonction int peut ne pas avoir d'instruction return
+	- une condition ne peut avoir que des expressions comme fils : expression [<|>|==|...] expression
 	
 problemes resolus : 
 	- la pile (Stack) de BSIM est trop petite pour les programmes longs ou très recursifs : elle devient debordee
@@ -8,7 +9,7 @@ problemes resolus :
 	- l'utilisation d'un JMP(...), n'importe où dans le code, fait littéralement peter un cable a BSIM : il lance 
 	une interrupted exception dès qu'il rencontre un HALT() (registre XP != 0) et revient à l'instruction 004, et
 	boucle comme ça indéfiniment. Solution pas très propre mise en place : on a mis un HALT() à l'instruction 004.
-	- une condition ne peut avoir que des expressions comme fils : expression [<|>|==|...] expression
+	
 
 	
 //RP - 20 avril
